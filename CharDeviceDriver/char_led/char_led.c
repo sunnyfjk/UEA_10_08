@@ -4,7 +4,7 @@
  * @Email:  sunnyfjk@gmai.com
  * @Filename: char_led.c
  * @Last modified by:   fjk
- * @Last modified time: 2018-10-18T15:19:39+08:00
+ * @Last modified time: 2018-10-18T15:24:24+08:00
  * @License: GPL
  */
 #include "x6818_led.h"
