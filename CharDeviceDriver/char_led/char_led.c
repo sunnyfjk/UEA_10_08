@@ -4,7 +4,7 @@
  * @Email:  sunnyfjk@gmai.com
  * @Filename: char_led.c
  * @Last modified by:   fjk
- * @Last modified time: 2018-10-18T14:36:22+08:00
+ * @Last modified time: 2018-10-18T15:19:39+08:00
  * @License: GPL
  */
 #include "x6818_led.h"
@@ -55,6 +55,20 @@ int char_led_open(struct inode *inode, struct file *file) {
   struct char_led_t *c =
       container_of(inode->i_cdev, struct char_led_t, cdev_led);
   file->private_data = c;
+  /*
+  假设 0 地址为 struct char_led_t 结构体的首地址
+  struct char_led_t *a=(struct char_led_t *)0;
+  得出 struct char_led_t 中 cdev 相对与 0 的地址
+  void *b=&(a->cdev_led);
+
+  计算 得出 struct char_led_t 中 cdev 相对首地址的偏移
+  unsigned long pos=((char *)a)-((char *)b);
+
+  知道 struct char_led_t 中 cdev 真实地址，
+  真实地址 减去 相对偏移 可以得出 struct char_led_t 结构体的真实的首地址
+  ((char *)(inode->i_cdev)-pos)==cl
+
+   */
   return 0;
 }
 int char_led_release(struct inode *inode, struct file *file) { return 0; }
