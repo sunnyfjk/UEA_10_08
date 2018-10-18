@@ -4,7 +4,7 @@
  * @Email:  sunnyfjk@gmai.com
  * @Filename: x6818_led.h
  * @Last modified by:   fjk
- * @Last modified time: 2018-10-18T14:12:02+08:00
+ * @Last modified time: 2018-10-18T14:50:24+08:00
  * @License: GPL
  */
 #ifndef __X6818_LED_H__
@@ -25,9 +25,13 @@ GPIO_C12
  */
 #define LED_GPIO_BASE_ADDR 0xC0010000
 
+/*设置输入输出功能*/
 #define GPIOBOUTENB 0xB004
+/*设置输出电平*/
 #define GPIOBOUT 0xB000
+/*设置是否启用开漏输出或推挽输出*/
 #define GPIOB_PULLENB 0xB060
+/*设置是否启用GPIOB_PULLENB的设置*/
 #define GPIOB_PULLENB_DISABLE_DEFAULT 0xB064
 
 #define GPIOCOUTENB 0xC004
@@ -39,13 +43,40 @@ GPIO_C12
   do {                                                                         \
     printk(KERN_ERR "[%s:%d]" fmt, __FUNCTION__, __LINE__, ##args);            \
   } while (0)
-
+/**
+ * [x6818_led_init 初始化led设备]
+ * @return  [成功：led设备的虚拟地址 失败：NULL]
+ */
 void __iomem *x6818_led_init(void);
+/**
+ * [x6818_led_exit 释放字符设备，释放led设备对应的虚拟地址]
+ * @param addr [led设备的虚拟地址]
+ */
 void x6818_led_exit(void __iomem *addr);
-
+/**
+ * [x6818_led_open 点亮led设备]
+ * @param addr [led设备虚拟地址]
+ * @param num  [led设备序号]
+ */
 void x6818_led_open(void __iomem *addr, int num);
+/**
+ * [x6818_led_close 熄灭led设备]
+ * @param addr [led设备虚拟地址]
+ * @param num  [led设备序号]
+ */
 void x6818_led_close(void __iomem *addr, int num);
+/**
+ * [x6818_led_con 设置led设备的状态]
+ * @param addr [led设备虚拟地址]
+ * @param num  [led设备序号]
+ * @param flag [led设备的状态 0 关 1 开]
+ */
 void x6818_led_con(void __iomem *addr, int num, int flag);
+/**
+ * [x6818_led_status 获取led设备的状态]
+ * @param addr   [led设备虚拟地址]
+ * @param status [led设备的状态]
+ */
 void x6818_led_status(void __iomem *addr, uint8_t *status);
 
 struct char_led_t {
