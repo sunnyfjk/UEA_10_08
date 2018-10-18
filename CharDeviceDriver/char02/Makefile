@@ -3,15 +3,15 @@
 # @Email:  sunnyfjkgmail.com
 # @Filename: Makefile
 # @Last modified by:   fjk
-# @Last modified time: 2018-10-17T11:45:42+08:00
+# @Last modified time: 2018-10-18T09:46:51+08:00
 # @License: GPL
 
-TAGET=char02
+TAGET=char01
 obj-m=$(TAGET).o
-KERN_SRC=/lib/modules/`uname -r`/build
+KERN_PATH=/opt/UEA_10_08/s5p6818sdk_lzy1/Linux/src/linux-3.4
 PWD=$(shell pwd)
 all:
-	make -C $(KERN_SRC) M=$(PWD) modules
+	make -C $(KERN_PATH) M=$(PWD) modules
 	cp $(PWD)/$(TAGET).ko /rootfs
 clean:
-	make -C $(KERN_SRC) M=$(PWD) clean
+	make -C  $(KERN_PATH) M=$(PWD) clean
