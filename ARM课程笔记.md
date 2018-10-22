@@ -2335,6 +2335,732 @@ input驱动（键盘、鼠标、触摸屏 等等）、sound、fb（显示屏）�
      | 参数   | `work` `struct delayed_work` 的指针 |      |
      | 返回值 |                                     |      |
 
+## kernel 并发机制
+
+### 抢占
+
+1.`抢占模式`，内核代码可以被其他代码打断，单CPU情况下加锁相当于关闭`抢占模式`，多个CPU需要加锁
+
+2.`非抢占模式`，内核代码不可以被打断，单CPU情况下可以不加锁，多个CPU需要加锁
+
+临界区的概念[^临界区] ，消费电子一般使用抢占模式，服务器一般使用非抢占模式。
+
+
+
+**#define preempt_disable()**
+
+| 名字   | 说明         | 备注                           |
+| ------ | ------------ | ------------------------------ |
+| 功能   | 关闭内核抢占 | 内核是抢占模式下，否则没有意义 |
+| 参数   | 无           |                                |
+| 返回值 | 无           |                                |
+
+**#define preempt_enable()**
+
+| 名字   | 说明         | 备注                           |
+| ------ | ------------ | ------------------------------ |
+| 功能   | 打开内核抢占 | 内核是抢占模式下，否则没有意义 |
+| 参数   | 无           |                                |
+| 返回值 | 无           |                                |
+
+### 自旋锁
+
+头文件 `include/linux/spinlock.h`
+
+自选锁在`抢占模式`单核CPU上获得锁就是关闭内核抢占，在单核CPU`非抢占模式`函数为空，获得锁之后不能去睡眠。
+
+#### 函数
+
+**#define spin_lock_init(_lock)** 
+
+| 名字   | 说明                    | 备注 |
+| ------ | ----------------------- | ---- |
+| 功能   | 初始化自旋锁            |      |
+| 参数   | **spinlock_t** 类型指针 |      |
+| 返回值 | 无                      |      |
+
+**static inline void spin_lock(spinlock_t *lock)**
+
+| 名字   | 说明                    | 备注 |
+| ------ | ----------------------- | ---- |
+| 功能   | 获得锁                  |      |
+| 参数   | **spinlock_t** 类型指针 |      |
+| 返回值 | 无                      |      |
+
+**static inline void spin_unlock(spinlock_t *lock)**
+
+| 名字   | 说明                    | 备注 |
+| ------ | ----------------------- | ---- |
+| 功能   | 释放锁                  |      |
+| 参数   | **spinlock_t** 类型指针 |      |
+| 返回值 | 无                      |      |
+
+**static inline void spin_lock_bh(spinlock_t *lock)**
+
+| 名字   | 说明                     | 备注 |
+| ------ | ------------------------ | ---- |
+| 功能   | 获得锁，并禁止中断下半部 |      |
+| 参数   | **spinlock_t** 类型指针  |      |
+| 返回值 | 无                       |      |
+
+**static inline void spin_unlock_bh(spinlock_t *lock)**
+
+| 名字   | 说明                       | 备注 |
+| ------ | -------------------------- | ---- |
+| 功能   | 释放锁，取消禁止中断下半部 |      |
+| 参数   | **spinlock_t** 类型指针    |      |
+| 返回值 | 无                         |      |
+
+**static inline void spin_lock_irq(spinlock_t *lock)**
+
+| 名字   | 说明                    | 备注 |
+| ------ | ----------------------- | ---- |
+| 功能   | 获得锁，并关闭中断      |      |
+| 参数   | **spinlock_t** 类型指针 |      |
+| 返回值 | 无                      |      |
+
+**static inline void spin_unlock_irq(spinlock_t *lock)**
+
+| 名字   | 说明                    | 备注 |
+| ------ | ----------------------- | ---- |
+| 功能   | 释放锁，打开中断        |      |
+| 参数   | **spinlock_t** 类型指针 |      |
+| 返回值 | 无                      |      |
+
+**#define spin_lock_irqsave(lock, flags)** 
+
+| 名字   | 说明                                                | 备注 |
+| ------ | --------------------------------------------------- | ---- |
+| 功能   | 获得锁，并保存中断状态                              |      |
+| 参数   | `lock` **spinlock_t** 类型指针 `falgs` 保存中断状态 |      |
+| 返回值 | 无                                                  |      |
+
+**static inline void spin_unlock_irqrestore(spinlock_t *lock, unsigned long flags)**
+
+| 名字   | 说明                                            | 备注 |
+| ------ | ----------------------------------------------- | ---- |
+| 功能   | 释放锁，恢复中断状态                            |      |
+| 参数   | `lock` **spinlock_t** 类型指针 `falgs` 中断状态 |      |
+| 返回值 | 无                                              |      |
+
+**static inline int spin_trylock(spinlock_t *lock)**
+
+| 名字   | 说明                    | 备注 |
+| ------ | ----------------------- | ---- |
+| 功能   | 尝试获得锁              |      |
+| 参数   | **spinlock_t** 类型指针 |      |
+| 返回值 | 成功`0` 失败`!0`        |      |
+
+### 信号量
+
+头文件 `include/linux/semaphore.h`
+
+如果没有获得信号量，不会死等而会睡眠。当释放信号量时会唤醒睡眠的进程[^进程上下文切换] 
+
+#### 结构体
+
+```c
+struct semaphore {
+        raw_spinlock_t          lock;
+        unsigned int            count;
+        struct list_head        wait_list;
+};
+```
+
+| 名字      | 说明                                                         | 备注                                             |
+| --------- | ------------------------------------------------------------ | ------------------------------------------------ |
+| lock      | 基于 `raw_spinlock_t` 实现                                   |                                                  |
+| count     | 当`count`有值时(!0)可以获得信号量,当`count`没有值时(0)需要等待(睡眠) | 当`count=1`时为互斥信号量，`count>1`为计数信号量 |
+| wait_list | 等待队列                                                     |                                                  |
+
+**static inline void sema_init(struct semaphore *sem, int val)**
+
+| 名字   | 说明                               | 备注 |
+| ------ | ---------------------------------- | ---- |
+| 功能   | 初始化信号量                       |      |
+| 参数   | `sem` 信号量指针 `val` count初始值 |      |
+| 返回值 | 无                                 |      |
+
+**void down(struct semaphore *sem);**
+
+| 名字   | 说明                   | 备注 |
+| ------ | ---------------------- | ---- |
+| 功能   | 获得信号量，不可被中断 |      |
+| 参数   | `sem` 信号量指针       |      |
+| 返回值 |                        |      |
+
+**int \__must_check down_interruptible(struct semaphore *sem);**
+
+| 名字   | 说明                   | 备注                                 |
+| ------ | ---------------------- | ------------------------------------ |
+| 功能   | 获取信号量，可以被打断 |                                      |
+| 参数   | `sem` 信号量指针       |                                      |
+| 返回值 | 成功 `0` 失败 `!0`     | 如果被信号打断返回`!0` 返回 `-EINTR` |
+
+**int \__must_check down_killable(struct semaphore *sem);**
+
+| 名字   | 说明                           | 备注                                 |
+| ------ | ------------------------------ | ------------------------------------ |
+| 功能   | 获取信号量，可以被致命信号打断 |                                      |
+| 参数   | `sem` 信号量指针               |                                      |
+| 返回值 | 成功 `0` 失败 `!0`             | 如果被信号打断返回`!0` 返回 `-EINTR` |
+
+**int \__must_check down_trylock(struct semaphore *sem);**
+
+| 名字   | 说明               | 备注 |
+| ------ | ------------------ | ---- |
+| 功能   | 尝试获取信号量     |      |
+| 参数   | `sem` 信号量指针   |      |
+| 返回值 | 成功 `0` 失败 `!0` |      |
+
+**int \__must_check down_timeout(struct semaphore *sem, long jiffies);**
+
+| 名字   | 说明                                                     | 备注                                 |
+| ------ | -------------------------------------------------------- | ------------------------------------ |
+| 功能   | 获取信号量，等待`jiffies` 时间，如果没有获得信号量则返回 |                                      |
+| 参数   | `sem` 信号量指针 `jiffies` 时间                          | 获取信号量`jiffies` +延时            |
+| 返回值 | 成功 `0` 失败 `!0`                                       | 如果被信号打断返回`!0` 返回 `-ETIME` |
+
+**void up(struct semaphore *sem);**
+
+| 名字   | 说明             | 备注 |
+| ------ | ---------------- | ---- |
+| 功能   | 释放信号量       |      |
+| 参数   | `sem` 信号量指针 |      |
+| 返回值 |                  |      |
+
+### 互斥量
+
+头文件 `include/linux/mutex.h`
+
+#### 结构体
+
+```c
+struct mutex {
+        /* 1: unlocked, 0: locked, negative: locked, possible waiters */
+        atomic_t                count;
+        spinlock_t              wait_lock;
+        struct list_head        wait_list;
+#if defined(CONFIG_DEBUG_MUTEXES) || defined(CONFIG_SMP)
+        struct task_struct      *owner;
+#endif
+#ifdef CONFIG_DEBUG_MUTEXES
+        const char              *name;
+        void                    *magic;
+#endif
+#ifdef CONFIG_DEBUG_LOCK_ALLOC
+        struct lockdep_map      dep_map;
+#endif
+};
+```
+
+#### 函数
+
+**#define mutex_init(mutex)**
+
+| 名字   | 说明                | 备注 |
+| ------ | ------------------- | ---- |
+| 功能   | 初始化互斥量        |      |
+| 参数   | `struct mutex` 指针 |      |
+| 返回值 |                     |      |
+
+**static inline void mutex\_destroy(struct mutex *lock)**
+
+| 名字   | 说明                | 备注           |
+| ------ | ------------------- | -------------- |
+| 功能   | 销毁互斥量          | 没有做任何操作 |
+| 参数   | `struct mutex` 指针 |                |
+| 返回值 |                     |                |
+
+**void mutex_lock(struct mutex *lock);**
+
+| 名字   | 说明                                         | 备注 |
+| ------ | -------------------------------------------- | ---- |
+| 功能   | 获取信号量，没有获取到睡眠，不可以被信号打断 |      |
+| 参数   | `struct mutex` 指针                          |      |
+| 返回值 |                                              |      |
+
+**int \__must_check mutex_lock_interruptible(struct mutex *lock);**
+
+| 名字   | 说明                                       | 备注 |
+| ------ | ------------------------------------------ | ---- |
+| 功能   | 获取信号量，没有获取到睡眠，可以被信号打断 |      |
+| 参数   | `struct mutex` 指针                        |      |
+| 返回值 | 获得`0` 失败 `!0`                          |      |
+
+**int \__must_check mutex_lock_killable(struct mutex *lock);**
+
+| 名字   | 说明                                           | 备注 |
+| ------ | ---------------------------------------------- | ---- |
+| 功能   | 获取信号量，没有获取到睡眠，可以被致命信号打断 |      |
+| 参数   | `struct mutex` 指针                            |      |
+| 返回值 | 获得`0` 失败 `!0`                              |      |
+
+**int mutex_trylock(struct mutex *lock);**
+
+| 名字   | 说明                | 备注 |
+| ------ | ------------------- | ---- |
+| 功能   | 尝试获得互斥量      |      |
+| 参数   | `struct mutex` 指针 |      |
+| 返回值 | 获得 `1` 失败 `0`   |      |
+
+**void mutex_unlock(struct mutex *lock);**
+
+| 名字   | 说明                | 备注 |
+| ------ | ------------------- | ---- |
+| 功能   | 释放互斥量          |      |
+| 参数   | `struct mutex` 指针 |      |
+| 返回值 |                     |      |
+
+### 读写锁
+
+头文件 `include/linux/rwock.h`，本质上为自旋锁
+
+读加锁，可以多个读者加锁
+
+写加锁，如果需要加写锁，则不能存在写锁和读锁
+
+#### 类型
+
+```c
+typedef struct {
+        arch_rwlock_t raw_lock;
+#ifdef CONFIG_GENERIC_LOCKBREAK
+        unsigned int break_lock;
+#endif
+#ifdef CONFIG_DEBUG_SPINLOCK
+        unsigned int magic, owner_cpu;
+        void *owner;
+#endif
+#ifdef CONFIG_DEBUG_LOCK_ALLOC
+        struct lockdep_map dep_map;
+#endif
+} rwlock_t;
+```
+
+#### 函数
+
+**# define rwlock_init(lock)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**void read_lock(rwlock_t *lock)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**void read_unlock(rwlock_t *lock)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**#define read_lock_irq(lock)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**#define read_unlock_irq(lock)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**#define read_lock_bh(lock)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**#define read_unlock_bh(lock)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**#define read_lock_irqsave(lock, flags)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**#define read_unlock_irqrestore(lock, flags)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**int read_trylock(rwlock_t *lock);**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**void write_lock(rwlock_t *lock)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**void write_unlock(rwlock_t *lock)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**#define write_lock_irq(lock)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**#define write_unlock_irq(lock)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**#define write_lock_bh(lock)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**#define write_unlock_bh(lock)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**#define write_lock_irqsave(lock, flags)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**#define write_unlock_irqrestore(lock, flags)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+**int write_trylock(rwlock_t *lock);**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+### 读写信号量
+
+头文件 `include/linux/rwsem.h`
+
+#### 结构体
+
+```c
+struct rw_semaphore {
+        long                    count;
+        raw_spinlock_t          wait_lock;
+        struct list_head        wait_list;
+#ifdef CONFIG_DEBUG_LOCK_ALLOC
+        struct lockdep_map      dep_map;
+#endif
+};
+```
+
+#### 函数
+
+- rwsem init 
+
+  **#define init_rwsem(sem)**
+
+- lock for reading
+  **void down_read(struct rw_semaphore *sem);**
+
+- trylock for reading -- returns 1 if successful, 0 if contention
+  **int down_read_trylock(struct rw_semaphore *sem);**
+
+- lock for writing
+  **void down_write(struct rw_semaphore *sem);**
+
+- trylock for writing -- returns 1 if successful, 0 if contention
+  **int down_write_trylock(struct rw_semaphore *sem);**
+
+- release a read lock
+  **void up_read(struct rw_semaphore *sem);**
+
+- release a write lock
+  **void up_write(struct rw_semaphore *sem);**
+
+### 读写锁(写者优先)
+
+- 多个写者不能共存
+
+- 多个读者可以共存
+
+- 在有读者是写者可以写，在有写者时其它写着不可以写
+
+- 读者每次读是都需要检测在读的过程中写者是否来过
+
+  头文件 `include/linux/seqlock.h`
+
+#### 使用方法
+
+```c
+do {
+  	seq = read_seqbegin(&foo);
+  	...
+  } while (read_seqretry(&foo, seq));
+  
+```
+
+#### 结构体
+
+```c
+  typedef struct {
+          unsigned sequence;
+          spinlock_t lock;
+  } seqlock_t;
+```
+
+|          |                                                              |                                                              |
+| -------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| sequence | 当为`偶数`时读者可以读，写者可以写，当为`奇数` 时写者不能写，读者不能读 | 读者 读取结束时应该判断`sequence` 是否改变如果改变需要重新读，写者加锁时 `sequence++` 写者解锁时 `sequence++` |
+| lock     | 保护 `sequence`                                              |                                                              |
+
+#### 函数
+
+  **#define seqlock_init(x)** 
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+  **static inline void write_seqlock(seqlock_t *sl)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+  **static inline void write_sequnlock(seqlock_t *sl)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+  **static inline int write_tryseqlock(seqlock_t *sl)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+  **static __always_inline unsigned read_seqbegin(const seqlock_t *sl)**
+
+| 名字   | 说明 | 备注                 |
+| ------ | ---- | -------------------- |
+| 功能   |      |                      |
+| 参数   |      | cpu_relax(); cpu休息 |
+| 返回值 |      |                      |
+
+  **static __always_inline int read_seqretry(const seqlock_t *sl, unsigned start)**
+
+| 名字   | 说明 | 备注 |
+| ------ | ---- | ---- |
+| 功能   |      |      |
+| 参数   |      |      |
+| 返回值 |      |      |
+
+### 原子量
+
+1. 头文件 `arch/arm/include/asm/atomic.h`
+
+2. 数据类型
+
+   ```c
+   typedef struct {
+           int counter;
+   } atomic_t;
+   ```
+
+3. 操作函数
+
+   #define atomic_inc(v)           atomic_add(1, v)
+   #define atomic_dec(v)           atomic_sub(1, v)
+
+   #define atomic_inc_and_test(v)  (atomic_add_return(1, v) == 0)
+   #define atomic_dec_and_test(v)  (atomic_sub_return(1, v) == 0)
+   #define atomic_inc_return(v)    (atomic_add_return(1, v))
+   #define atomic_dec_return(v)    (atomic_sub_return(1, v))
+   #define atomic_sub_and_test(i, v) (atomic_sub_return(i, v) == 0)
+
+   #define atomic_add_negative(i,v) (atomic_add_return(i, v) < 0)
+
+### 阻塞与非阻塞访问
+
+- 同步 等待数据来到
+- 阻塞 如果没有数据一直等，(睡眠)
+- 异步 安排任务去工作，工作完成时通过信号、线程通知用户层
+- 非阻塞 如果没有数据，出错返回
+
+#### 等待队列(非阻塞访问)
+
+##### 结构体
+
+```c
+struct __wait_queue_head {
+        spinlock_t lock;
+        struct list_head task_list;
+};
+typedef struct __wait_queue_head wait_queue_head_t;
+```
+
+##### 函数
+
+**#define init_waitqueue_head(q)**
+
+| 名字   | 功能                         | 备注 |
+| ------ | ---------------------------- | ---- |
+| 功能   | 初始化等待队列               |      |
+| 参数   | `q` `wait_queue_head_t` 指针 |      |
+| 返回值 |                              |      |
+
+**#define wait_event(wq, condition)**
+
+| 名字   | 功能                                                         | 备注                       |
+| ------ | ------------------------------------------------------------ | -------------------------- |
+| 功能   | 进入等待                                                     |                            |
+| 参数   | `wq` `wait_queue_head_t` 等待队列指针 `condition` 不睡眠条件 | 为`true` 退出 `false` 等待 |
+| 返回值 |                                                              |                            |
+
+**#define wait_event_timeout(wq, condition, timeout)**
+
+**#define wait_event_interruptible(wq, condition)**
+
+**#define wait_event_killable(wq, condition)** 
+
+**#define wait_event_interruptible_timeout(wq, condition, timeout)**
+
+**#define wait_event_interruptible_exclusive(wq, condition)**
+
+|      |                      |      |
+| ---- | -------------------- | ---- |
+|      | 睡眠的时候带互斥标志 |      |
+|      |                      |      |
+|      |                      | 下   |
+
+**#define wake_up(x)**  
+
+| 名字   | 功能                         | 备注 |
+| ------ | ---------------------------- | ---- |
+| 功能   | 唤醒队列                     |      |
+| 参数   | `x` `wait_queue_head_t` 指针 |      |
+| 返回值 |                              |      |
+
+**#define wake_up_nr(x, nr)**
+
+**#define wake_up_all(x)**
+
+**#define wake_up_interruptible(x)**
+
+**#define wake_up_interruptible_nr(x, nr)** 
+
+**#define wake_up_interruptible_all(x)**
+
+```c
+#define lock_wait_evnet(wq,cond,lock)						\
+{															\
+	int ret=0;												\
+	DEFINE_WAIT(__wait);									\
+	unsigned long flags=0;									\
+	spin_lock_irqsave(lock,flags);							\
+	while(!cond){											\
+   	 	prepare_to_wait(&wq, &__wait, TASK_INTERRUPTIBLE);	\
+        if(signal_pending(current)){						\
+          finish_wait(&wq, &__wait);						\
+          ret=-ERESTARTSYS;									\
+          break;											\
+        }													\
+        spin_unlock_irqrestore(lock,flags);					\
+        schedule();											\
+        spin_lock_irqsave(lock,flags);						\
+        finish_wait(&wq, &__wait);							\
+	}														\
+ 	spin_unlock_irqrestore(lock,flags);						\
+ 	ret;													\
+}
+```
+
+
+
+#### 高级IO
+
+1.把可能改变进程状态的等待队列放入到table
+
+2.判断设备是否可读或可写
+
+3.返回响应标志
+
+##### 函数
+
+**static inline void poll_wait(struct file * filp, wait_queue_head_t * wait_address, poll_table *p);**
+
+| 名字   | 功能                                                         | 备注 |
+| ------ | ------------------------------------------------------------ | ---- |
+| 功能   | 把可能改变进程状态的`wait_address`放入到`p`                  |      |
+| 参数   | `filp` `struct file` 指针 `wait_address` `wait_queue_head_t` 指针 `poll_table` 指针 |      |
+| 返回值 |                                                              |      |
+
+
+
 ## 补充内容
 
 ### container_of(ptr, type, member)
