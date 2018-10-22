@@ -4,9 +4,10 @@
  * @Email:  sunnyfjk@gmai.com
  * @Filename: interrupt.c
  * @Last modified by:   fjk
- * @Last modified time: 2018-10-19T15:41:44+08:00
+ * @Last modified time: 2018-10-22T10:30:09+08:00
  * @License: GPL
  */
+#include <linux/delay.h>
 #include <linux/gpio.h>
 #include <linux/init.h>
 #include <linux/interrupt.h>

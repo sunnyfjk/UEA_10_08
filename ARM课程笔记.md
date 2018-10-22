@@ -2015,12 +2015,231 @@ input驱动（键盘、鼠标、触摸屏 等等）、sound、fb（显示屏）�
 | 参数   | `clk` 时钟结构体 |      |
 | 返回值 | 时钟频率         |      |
 
-### led 字符设别驱动
+### linux中断
 
-### WDT 字符设备驱动
+产生中断异常之后：
 
-1. 检查内核中的WDT驱动是否被选择，如果被选择则取消选择
-2. 
+- 计算`中断线`[^中断线] 
+- 执行 asm_do_IRQ 函数
+- 找到struct irq_desc 
+
+#### 函数
+
+**typedef irqreturn_t (*irq_handler_t)(int irq, void * dev);**
+
+| 名字   | 说明                                          | 备注 |
+| ------ | --------------------------------------------- | ---- |
+| 功能   | 中断处理函数                                  |      |
+| 参数   | ``irq` 中断线`dev` 设备结构体，或者是私有数据 |      |
+| 返回值 | 成功：`IRQ_HANDLED` 失败：`IRQ_NONE`          |      |
+
+**int __must_check request_irq(unsigned int irq, irq_handler_t handler, unsigned long flags,const char *name, void *dev);**
+
+| 名字   | 说明                                                         | 备注 |
+| ------ | ------------------------------------------------------------ | ---- |
+| 功能   | 注册中断                                                     |      |
+| 参数   | `irq` 中断线 `handler` 中断处理函数 `flags` 响应中断的模式 `name` 中断的名字 `dev` 设备结构体，或者是私有数据 |      |
+| 返回值 | 成功：`0` 失败：`!0`                                         |      |
+
+**void free_irq(unsigned int irq, void *dev_id)**
+
+| 名字   | 说明                                    | 备注                       |
+| ------ | --------------------------------------- | -------------------------- |
+| 功能   | 释放注册的中断线                        |                            |
+| 参数   | irq 中断线，dev_id 注册时传入的私有数据 | 必须和注册时传入的数据一致 |
+| 返回值 | 无                                      |                            |
+
+**#define in_interrupt()**
+
+| 名字   | 说明                           | 备注 |
+| ------ | ------------------------------ | ---- |
+| 功能   | 判断程序执行的环境             |      |
+| 参数   | 无                             |      |
+| 返回值 | `!0` 中断上下文 `0` 进程上下文 |      |
+
+#### 通过函数计算中断线
+
+需要包含的头文件是
+
+```c
+#include <linux/gpio.h>
+#include <mach/platform.h>
+```
+
+**int gpio_to_irq(unsigned gpio);**
+
+| 名字   | 说明                       | 备注 |
+| ------ | -------------------------- | ---- |
+| 功能   | 根据GPIO号转换成GPIO中断线 |      |
+| 参数   | `gpio` GPIO 号             |      |
+| 返回值 | 中断线                     |      |
+
+注意：
+
+查找GPIO的方法
+
+> /*  gpio group pad start num. */
+> enum {
+>     PAD_GPIO_A      = (0 * 32),
+>     PAD_GPIO_B      = (1 * 32),
+>     PAD_GPIO_C      = (2 * 32),
+>     PAD_GPIO_D      = (3 * 32),
+>     PAD_GPIO_E      = (4 * 32),
+>     PAD_GPIO_ALV    = (5 * 32),
+> };
+>
+> 例子：
+>
+> 查找GPIOA28
+>
+> ```c
+> gpio_a_28=PAD_GPIO_A+28;
+> ```
+>
+> 查找GPIOA28中断线
+>
+> ```c
+> gpio_a_28_line=gpio_to_irq(PAD_GPIO_A+28);
+> ```
+
+#### 直接计算中断线
+
+> #define IRQ_GPIO_A_START                (IRQ_GPIO_START + PAD_GPIO_A)
+> #define IRQ_GPIO_B_START                (IRQ_GPIO_START + PAD_GPIO_B)
+> #define IRQ_GPIO_C_START                (IRQ_GPIO_START + PAD_GPIO_C)
+> #define IRQ_GPIO_D_START                (IRQ_GPIO_START + PAD_GPIO_D)
+> #define IRQ_GPIO_E_START                (IRQ_GPIO_START + PAD_GPIO_E)
+>
+> 例子：
+>
+> 查找GPIOA28中断线
+>
+> ```c
+> gpio_a_28_line=IRQ_GPIO_A_START+28;
+> ```
+
+## 内核中延时的方法
+
+1. 需要包含 `#include<linux/delay.h>`
+
+2. 睡眠延时函数
+
+   - void ssleep(unsigned int seconds);
+
+     > 秒 级延时
+
+   - void msleep(unsigned int msecs);
+
+     > 毫秒级延时
+
+3. 死循环延时
+
+   - void udelay(n)
+
+     > 微秒 级延时
+
+   - void ndelay(unsigned long x)
+
+     > 纳 秒 级延时
+
+   - mdelay(n)
+
+     > 毫秒级延时
+
+4. 长延时
+
+   jiffies
+
+   初始值为 -5×min[^min] 
+
+   #define time_after(a,b)
+
+5. 获取内核时间
+
+     void do_gettimeofday(struct timeval *tv);
+
+     void getnstimeofday(struct timespec *ts);
+
+## 中断下半部
+
+1. 软中断
+
+   - %99 是永不到的
+
+   - 系统支持的软中断
+
+     ```c
+     enum
+     {
+        HI_SOFTIRQ=0,
+        TIMER_SOFTIRQ,
+        NET_TX_SOFTIRQ,
+        NET_RX_SOFTIRQ,
+        BLOCK_SOFTIRQ,
+        BLOCK_IOPOLL_SOFTIRQ,
+        TASKLET_SOFTIRQ,
+        SCHED_SOFTIRQ,
+        HRTIMER_SOFTIRQ,
+        RCU_SOFTIRQ,    /* Preferable RCU should always be the last softirq */
+        NR_SOFTIRQS
+     };
+     ```
+
+   - #define in_interrupt()
+
+     > 返回真在终端上下文 返回假在进程上下文
+
+     判断当前处在的环境
+
+2. tasklet_struct
+
+   - tasklet 时基于软中断的，它处于中断上下文
+
+   - 不能在tasklet 下半部睡眠
+
+   - tasklet 结构体
+
+     ```c
+     struct tasklet_struct
+     {
+             struct tasklet_struct *next;
+             unsigned long state;
+             atomic_t count;
+             void (*func)(unsigned long);
+             unsigned long data;
+     };
+     ```
+
+   - 函数
+
+     **void tasklet_init(struct tasklet_struct \*t,void (\*func)(unsigned long), unsigned long data);**
+
+     | 名字   | 说明                                                         | 备注 |
+     | ------ | ------------------------------------------------------------ | ---- |
+     | 功能   | 初始化 `struct tasklet_struct` 结构体                        |      |
+     | 参数   | `t` `struct tasklet_struct`结构体指针 `func` 执行下半部时使用的函数指针 `data` 执行中断下半部时需要的数据 |      |
+     | 返回值 | 无                                                           |      |
+
+     **static inline void tasklet_schedule(struct tasklet_struct *t)**
+
+     | 名字   | 说明                                  | 备注 |
+     | ------ | ------------------------------------- | ---- |
+     | 功能   | 调度 `tasklet`                        |      |
+     | 参数   | `t` `struct tasklet_struct`结构体指针 |      |
+     | 返回值 | 无                                    |      |
+
+     **static inline void tasklet_hi_schedule(struct tasklet_struct *t)**
+
+     | 名字   | 说明                                  | 备注 |
+     | ------ | ------------------------------------- | ---- |
+     | 功能   | 高优先级调度 `tasklet`                |      |
+     | 参数   | `t` `struct tasklet_struct`结构体指针 |      |
+     | 返回值 | 无                                    |      |
+
+3. work_struct
+
+   - 处于进程上下文
+   - 可以睡眠
 
 ## 补充内容
 
