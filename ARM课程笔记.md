@@ -2238,8 +2238,102 @@ input驱动（键盘、鼠标、触摸屏 等等）、sound、fb（显示屏）�
 
 3. work_struct
 
-   - 处于进程上下文
-   - 可以睡眠
+   - 处于进程上下文，可以睡眠
+
+   - 结构体
+
+     ```c
+     typedef void (*work_func_t)(struct work_struct *work);
+     struct work_struct {
+             atomic_long_t data;
+             struct list_head entry;
+             work_func_t func;
+     #ifdef CONFIG_LOCKDEP
+             struct lockdep_map lockdep_map;
+     #endif
+     };
+     ```
+
+   - 函数
+
+     **#define INIT_WORK(_work, _func)**
+
+     | 名字   | 说明                                                         | 备注 |
+     | ------ | ------------------------------------------------------------ | ---- |
+     | 功能   | 初始化`struct work_struct` 结构体                            |      |
+     | 参数   | _`work` `struct work_struct` 的指针 `func` 执行下半部时使用的函数指针 |      |
+     | 返回值 | 无                                                           |      |
+
+     **int schedule_work(struct work_struct *work);**
+
+     | 名字   | 说明                               | 备注 |
+     | ------ | ---------------------------------- | ---- |
+     | 功能   | 调度 work                          |      |
+     | 参数   | `work` `struct work_struct` 的指针 |      |
+     | 返回值 | 无                                 |      |
+
+     **void flush_scheduled_work(void);**
+
+     | 名字   | 说明             | 备注 |
+     | ------ | ---------------- | ---- |
+     | 功能   | 刷新内核工作队列 |      |
+     | 参数   | 无               |      |
+     | 返回值 | 无               |      |
+
+4. delayed_work
+
+   调度之后，延时n之后在执行函数
+
+   - 结构体
+
+     ```c
+     struct delayed_work {
+             struct work_struct work;
+             struct timer_list timer;
+     };
+     ```
+
+   - 函数
+
+     **#define INIT_DELAYED_WORK(_work, _func)**
+
+     | 名字   | 说明                                                         | 备注 |
+     | ------ | ------------------------------------------------------------ | ---- |
+     | 功能   | 初始化`struct work_struct` 结构体                            |      |
+     | 参数   | _`work` `struct work_struct` 的指针 `func` 执行下半部时使用的函数指针 |      |
+     | 返回值 | 无                                                           |      |
+
+     **int schedule_delayed_work(struct delayed_work *work, unsigned long delay)**
+
+     | 名字   | 说明                                                    | 备注     |
+     | ------ | ------------------------------------------------------- | -------- |
+     | 功能   | 调度 work 延时 `delay` 时长执行                         |          |
+     | 参数   | `work` `struct delayed_work` 的指针 delay 延时时长 n*HZ | HZ 是 1s |
+     | 返回值 | 无                                                      |          |
+
+     **bool flush_delayed_work(struct delayed_work *dwork);**
+
+     | 名字   | 说明                                | 备注 |
+     | ------ | ----------------------------------- | ---- |
+     | 功能   | 刷新 delayed_work                   |      |
+     | 参数   | `work` `struct delayed_work` 的指针 |      |
+     | 返回值 |                                     |      |
+
+      **bool flush_delayed_work_sync(struct delayed_work *work);**
+
+     | 名字   | 说明                                | 备注 |
+     | ------ | ----------------------------------- | ---- |
+     | 功能   | 刷新 delayed_work                   |      |
+     | 参数   | `work` `struct delayed_work` 的指针 |      |
+     | 返回值 |                                     |      |
+
+     **bool cancel_delayed_work_sync(struct delayed_work *dwork);**
+
+     | 名字   | 说明                                | 备注 |
+     | ------ | ----------------------------------- | ---- |
+     | 功能   | 取消 delayed_work 执行              |      |
+     | 参数   | `work` `struct delayed_work` 的指针 |      |
+     | 返回值 |                                     |      |
 
 ## 补充内容
 
