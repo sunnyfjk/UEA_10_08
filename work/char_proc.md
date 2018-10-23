@@ -142,17 +142,77 @@
 # 将LED、Buzzer 、KEY中断设备结合
 
 1. 可以自动生成 `/dev/mydev` 设备文件
+
+   - 创建描述设备的结构体
+     - dev_t 类型的设备号
+     - struct cdev 类型的结构体
+     - struct file_operations 类型的结构体
+     - void __iomem * led 的虚拟地址
+     - void __iomem * buzzer 的虚拟地址
+     - int irq[4] KEY的中断号
+     - char irq_name[4]\[32] 注册的中断的名字
+     - struct class 结构体
+     - struct device 结构体
+     - 设置4.3中描述的状态
+     - struct proc_dir_entry 结构体
+   - 编写初始化函数
+     - 创建 描述设备的结构体
+     - 初始化结构体中的内容
+   - 编写注销函数
+     - 注销初始化的数据
+
 2. 可以通过设备文件读取到 `led` `Buzzer` 的状态（read）
+
+   - struct file_operations 中的read函数
+   - 读取led灯状态的函数
+   - 定义和用户层传输的协议
+
 3. 可以通过设备文件控制 `led` `Buzzer` 的状态（write）
+
+   - struct file_operations 中的write函数
+   - 定义和用户层通信的协议
+   - 定义设置led灯状态的函数
+   - 定义设置`Buzzer`状态的函数
+   - 判断 4.3 的功能是否打开 检测led灯的状态，判断是否需要关闭或打开buzeer
+
 4. 可以通过`ioct` 控制设备文件
    1. 全部打开 `led` 设备 
+      - struct file_operations 中的unlocked_ioctl函数
+      - 定义 ioctl 命令
+      - 定义全部打开led灯的函数
    2. 全部关闭`led` 设备
+      - struct file_operations 中的unlocked_ioctl函数
+      - 定义 ioctl 命令
+      - 定义全部关闭led灯的函数
    3. 可以设置只要打开`led` 任何一个设备，`Buzzer` 都会响，`led` 设备全部关闭时，`Buzzer` 停止
-   4. 设置可以关闭 3 的功能
+      - struct file_operations 中的unlocked_ioctl函数
+      - 定义 ioctl 命令
+      - 设置该功能的状态 为打开
+      - 读取led灯的状态 如果有灯亮 打开蜂鸣器否则不操作蜂鸣器
+
+   1. 设置可以关闭 3 的功能
+      - struct file_operations 中的unlocked_ioctl函数
+      - 定义 ioctl 命令
+      - 设置该功能的状态 关闭
+      - 关闭蜂鸣器
+
 5. 通过`proc`可以获取`led` `Buzzer` 的状态
+
+   - 实现proc的读函数
+
+   - 定义一块缓存
+   - 将描述led buzzer 的状态的字符放入缓存
+   - 读存缓存中的内容
+
 6. 空过按键 可以 控制`led` 灯的状态
    1. 按key_1第一次打开 `led 0`,再按关闭`led 0`
-   2.  按key_2第一次打开 `led 1`,再按关闭`led 1`
-   3.  按key_3第一次打开 `led 2`,再按关闭`led 2`
+      - 编写中断处理函数吧
+      - 判断 irq 的值和哪个引脚的中断线一样 就是哪个按键
+      - 判断 4.3 的功能是否打开 检测led灯的状态，判断是否需要关闭或打开led灯
+   2. 按key_2第一次打开 `led 1`,再按关闭`led 1`
+      - 和6.1的功能一样
+   3. 按key_3第一次打开 `led 2`,再按关闭`led 2`
+      - 和6.1的功能一样
    4. 按key_4第一次打开 `led 3`,再按关闭`led 3`
+      - 和6.1的功能一样
 
