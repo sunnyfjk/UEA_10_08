@@ -4,7 +4,7 @@
  * @Email:  sunnyfjk@gmai.com
  * @Filename: waitqueue.c
  * @Last modified by:   fjk
- * @Last modified time: 2018-10-23T14:21:02+08:00
+ * @Last modified time: 2018-10-23T14:42:03+08:00
  * @License: GPL
  */
 #include "waitqueue.h"
@@ -151,6 +151,18 @@ ssize_t my_stack_write(struct file *file, const char __user *buffer,
   return ret;
 }
 
+unsigned int my_stack_poll(struct file *file, struct poll_table_struct *table) {
+  int ret = 0;
+  struct stack_cdev_t *s = file->private_data;
+  poll_wait(file, &s->ro, table);
+  poll_wait(file, &s->wo, table);
+  if (s->stack->top > 0)
+    ret |= POLLIN;
+  if ((s->stack->top) < (s->stack->stack_size))
+    ret |= POLLOUT;
+  return ret;
+}
+
 long my_stack_unlocked_ioctl(struct file *file, unsigned int cmd,
                              unsigned long arg) {
   return 0;
@@ -190,6 +202,7 @@ static __init int waitqueue_init(void) {
   dev->stack_ops.read = my_stack_read;
   dev->stack_ops.write = my_stack_write;
   dev->stack_ops.unlocked_ioctl = my_stack_unlocked_ioctl;
+  dev->stack_ops.poll = my_stack_poll;
   cdev_init(&dev->stack_dev, &dev->stack_ops);
   ret = cdev_add(&dev->stack_dev, dev->stack_num, 1);
   if (ret) {
