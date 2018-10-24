@@ -200,6 +200,7 @@ source ~/.bashrc
    Welcome to fdisk (util-linux 2.27.1).
    Changes will remain in memory only, until you decide to write them.
    Be careful before using the write command.
+   ```
 
 
    命令(输入 m 获取帮助)：p
@@ -3105,18 +3106,113 @@ typedef struct __wait_queue_head wait_queue_head_t;
 
    **void kset_unregister(struct kset *kset);**
 
-<<<<<<< HEAD
 4. 设备 创建`device` `driver` `bustype`
-=======
-<<<<<<< HEAD
-4. 设备 创建`device` `driver` `bustype` 
->>>>>>> 179a08883e5eb223c9d525cf7d2b7d7af7d586d8
-
    1. 设备模型的核心结构
-   2.
+   2. 设备模型中的设备和驱动进行匹配时，是使用 bustype 中的`match` 进行匹配，匹配成功返回 `1` ，失败 返回 `0` 
+   3. 需要注意的是 device 中的 `init_name` 成员不能当作设备匹配驱动的关键字
 
-=======
->>>>>>> ed90c9b8840244b0462c7f3883ab200248e2f493
+5. platform 总线设备
+
+   - struct platform_device   platform 总线设备
+
+     ```c
+     struct platform_device {
+             const char      * name;
+             int             id;
+             struct device   dev;
+             u32             num_resources;
+             struct resource * resource;
+     
+             const struct platform_device_id *id_entry;
+     
+             /* MFD cell pointer */
+             struct mfd_cell *mfd_cell;
+     
+             /* arch specific additions */
+             struct pdev_archdata    archdata;
+     };
+     ```
+
+   - struct platform_driver   platform 总线驱动
+
+     ```c
+     struct platform_driver {
+             int (*probe)(struct platform_device *);
+             int (*remove)(struct platform_device *);
+             void (*shutdown)(struct platform_device *);
+             int (*suspend)(struct platform_device *, pm_message_t state);
+             int (*resume)(struct platform_device *);
+             struct device_driver driver;
+             const struct platform_device_id *id_table;
+     };
+     ```
+
+   - 函数
+
+     - struct platform_device   
+
+       int platform_device_register(struct platform_device *);
+
+       void platform_device_unregister(struct platform_device *);
+
+     - struct platform_driver
+
+       int platform_driver_register(struct platform_driver *);
+
+       void platform_driver_unregister(struct platform_driver *);
+
+       void platform_set_drvdata(struct platform_device *pdev, void *data)
+
+       void *platform_get_drvdata(const struct platform_device *pdev)
+
+       struct resource *platform_get_resource(struct platform_device *, unsigned int, unsigned int);
+
+     - 例子
+
+       ```c
+       void led_device_release(struct device *dev) {}
+       struct resource led_res[] = {
+               [0] =
+                   {
+                       .start = LED_BASE_ADDR,
+                       .end = LED_BASE_ADDR+LED_BASE_SIZE-1,
+                       .name = "led register",
+                       .flags = IORESOURCE_MEM,
+                   },
+       };
+       struct platform_device led_device={
+           .name="led",
+           .id=-1,
+           .num_resources=ARRAY_SIZE(led_res),
+           .resource=led_res,
+           .dev={
+               .init_name="led",
+               .release=led_release,
+           }
+       }
+       struct platform_device_id id_table[] = {
+           {"led", 123},
+           {},
+       };
+       struct platform_driver led_driver = {
+           /**/
+           .probe = led_probe,
+           /**/
+           .remove = led_remove,
+           .shutdown = led_shutdown,
+           .suspend = led_suspend,
+           .resume = led_resume,
+           .driver =
+               {
+                   .name = "led",
+               },
+           .id_table = id_table,
+       
+       };
+       ```
+
+       
+
 ## 补充内容
 
 ### container_of(ptr, type, member)
