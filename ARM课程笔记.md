@@ -3105,11 +3105,18 @@ typedef struct __wait_queue_head wait_queue_head_t;
 
    **void kset_unregister(struct kset *kset);**
 
+<<<<<<< HEAD
 4. 设备 创建`device` `driver` `bustype`
+=======
+<<<<<<< HEAD
+4. 设备 创建`device` `driver` `bustype` 
+>>>>>>> 179a08883e5eb223c9d525cf7d2b7d7af7d586d8
 
    1. 设备模型的核心结构
    2.
 
+=======
+>>>>>>> ed90c9b8840244b0462c7f3883ab200248e2f493
 ## 补充内容
 
 ### container_of(ptr, type, member)
