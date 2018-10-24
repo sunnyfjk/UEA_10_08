@@ -31,19 +31,19 @@ arm1、arm2、arm3  .... arm6
 
 ## Linux 区别与 Android
 
-`app` 			 **QQ 微信 游戏 控制界面** 
+`app` 			 **QQ 微信 游戏 控制界面**
 
-`GUI` 			 **QT(C++) Android(Java) GTK(C) MiniGUI(C)** 
+`GUI` 			 **QT(C++) Android(Java) GTK(C) MiniGUI(C)**
 
-`本地可执行程序`      **ls mkdir sudo mv ....** 
+`本地可执行程序`      **ls mkdir sudo mv ....**
 
-`本地库` 			 **libc.so.6 libjpeg.so libstdc++ ....** 
+`本地库` 			 **libc.so.6 libjpeg.so libstdc++ ....**
 
 `文件系统`
 
-`kernel`			 **Linux Android windows** 
+`kernel`			 **Linux Android windows**
 
-`bootloader`		 **uboot ** 
+`bootloader`		 **uboot **
 
 ------
 
@@ -99,7 +99,7 @@ arm1、arm2、arm3  .... arm6
 ```shell
 extern/
 ├── arm-linux-gcc-4.5.1.tar.bz2 #交叉编译器
-├── ARM架构手册.pdf 
+├── ARM架构手册.pdf
 ├── jdk-7u80-linux-x64.tar.gz
 ├── lamp_off1.png
 ├── lamp_off.png
@@ -122,11 +122,11 @@ Linux/
 ## package 目录介绍
 
 ```shell
-package/ 
+package/
 ├── DataSheet #芯片数据手册
 ├── dic  
 ├── hardware #硬件原理图
-├── source 
+├── source
 └── tool
 ```
 
@@ -136,7 +136,7 @@ package/
 src/
 ├── buildroot_dl.tar.gz #buidroot 需要的软件包
 ├── buildroot.tar.bz2 #buildroot 源码文件
-├── linux 
+├── linux
 ├── linux-3.4.tar.bz2 #linux 源码文件
 ├── prototype
 └── uboot6818.tar.bz2 #uboot源码文件
@@ -200,8 +200,8 @@ source ~/.bashrc
    Welcome to fdisk (util-linux 2.27.1).
    Changes will remain in memory only, until you decide to write them.
    Be careful before using the write command.
-   
-   
+
+
    命令(输入 m 获取帮助)：p
    Disk /dev/sdb: 30 GiB, 32237420544 bytes, 62963712 sectors
    Units: sectors of 1 * 512 = 512 bytes
@@ -209,23 +209,23 @@ source ~/.bashrc
    I/O size (minimum/optimal): 512 bytes / 512 bytes
    Disklabel type: dos
    Disk identifier: 0x00000000
-   
+
    设备       启动   Start   末尾   扇区 Size Id 类型
    /dev/sdb1       6298214 62963711 56665498  27G  b W95 FAT32
-   
+
    命令(输入 m 获取帮助)：d
    Selected partition 1
    Partition 1 has been deleted.
-   
+
    命令(输入 m 获取帮助)： p
-   
+
    Disk /dev/sdb: 30 GiB, 32237420544 bytes, 62963712 sectors
    Units: sectors of 1 * 512 = 512 bytes
    Sector size (logical/physical): 512 bytes / 512 bytes
    I/O size (minimum/optimal): 512 bytes / 512 bytes
    Disklabel type: dos
    Disk identifier: 0x00000000
-   
+
    命令(输入 m 获取帮助)： n
    Partition type
       p   primary (0 primary, 0 extended, 4 free)
@@ -235,11 +235,11 @@ source ~/.bashrc
    First sector (2048-62963711, default 2048): 6298214
    Last sector, +sectors or +size{K,M,G,T,P} (6288214-62963711, default 62963711):
    Created a new partition 1 of type 'Linux' and of size 27 GiB.
-   
+
    命令(输入 m 获取帮助):t
    Partition type (type L to list all types): b
    Changed type of partition 'Linux' to 'W95 FAT32'.
-   
+
    命令(输入 m 获取帮助)：w
    The partition table has been altered.
    Calling ioctl() to re-read partition table.
@@ -254,7 +254,7 @@ source ~/.bashrc
 
    > 注意：`/dev/sdb` 为SD卡设备，在自己电脑上名字有可能改变
    >
-   > 格式化时一定要格式化分区，即`/dev/sdb1` 
+   > 格式化时一定要格式化分区，即`/dev/sdb1`
 
 ## 烧写uboot和配置minicom
 
@@ -403,7 +403,7 @@ sudo minicom -s
    sudo fastboot flash system rootfs.ext2
    ```
 
-   
+
 
 7. 命令执行完毕之后，重启开发板
 
@@ -630,7 +630,7 @@ sudo minicom -s
    > sudo apt install lib32stdc++
    > ```
    >
-   > 
+   >
 
 5. 烧写 boot.img（跟新内核）
 
@@ -742,7 +742,7 @@ sudo apt install texinfo
    ping 电脑ip
    ```
 
-   > 注： 
+   > 注：
    >
    > 电脑如果和开发板可以通信，命令的执行结果为 `host 192.168.100.155 is alive`
    >
@@ -844,7 +844,7 @@ sudo apt install texinfo
    # Configure Loopback
    auto lo
    iface lo inet loopback
-   
+
    auto eth0
    #iface eth0 inet dhcp
    ```
@@ -971,10 +971,10 @@ sudo apt install texinfo
      do {                                                                         \
        printk(KERN_ERR "[%s:%d]" fmt, __FUNCTION__, __LINE__, ##args);            \
      } while (0)
-   
+
    #include <linux/init.h>
    #include <linux/module.h>
-   
+
    /**
     * [MODULE_LICENSE 声明该模块遵循的协议]
     */
@@ -990,7 +990,7 @@ sudo apt install texinfo
        PERR("INIT\n");
      return 0;
    }
-   
+
    /**
     * [uplooking_exit 内核模块的退出函数,__exit
     * 关键字表明该函数是在模块退出的时候执行的，如果模块被编译到内核中，该代码段不会被编译]
@@ -999,7 +999,7 @@ sudo apt install texinfo
      PERR("EXIT\n");
      return;
    }
-   
+
    /**
     * [module_init 注册模块初始化函数]
     */
@@ -1049,33 +1049,33 @@ sudo apt install texinfo
 > config TMPFS_POSIX_ACL
 >
 >  bool "Tmpfs POSIX Access Control Lists"
-> 
+>
 >  ​	depends on TMPFS
-> 
+>
 >  ​	select GENERIC_ACL
-> 
+>
 >  ​	help
-> 
+>
 >  POSIX Access Control Lists (ACLs) support permissions for users and
-> 
+>
 >  groups beyond the owner/group/world scheme.
-> 
+>
 >  To learn more about Access Control Lists, visit the POSIX ACLs for
-> 
+>
 >  Linux website <http://acl.bestbits.at/>.
-> 
+>
 >  解析：config是关键字，表示一个配置选项的开始；紧跟着的TMPFS_POSIX_ACL是配置选项的名称，省略了前缀"CONFIG_"
-> 
+>
 >  bool表示变量类型，即"CONFIG_ TMPFS_POSIX_ACL "的类型，有5种类型：bool、tristate、string、hex和int，其中tristate和string是基本的类型
-> 
+>
 >  ​ bool变量的值：     y和n
-> 
+>
 >  tristate变量的值： y、n和m
-> 
+>
 >  ​ string变量的值：   字符串
-> 
+>
 >  ​ bool之后的字符串“Tmpfs POSIX Access Control Lists”是提示信息，在配置界面中上下移动光标选中它时，就可以通过按空格或回车键来设置CONFIG_ TMPFS_POSIX_ACL的值。
-> 
+>
 >  depends on：表示依赖于XXX，“depends on TMPFS”表示只有当TMPFS配置选项被选中时，当前配置选项的提示信息才会出现，才能设置当前配置选项。
 
 - menuconfig
@@ -1133,11 +1133,11 @@ sudo apt install texinfo
 > comment条目用于定义一些帮助信息，出现在界面的第一行，如在arch/arm/Kconifg中有如下代码：
 >
 >  
-> 
+>
 >  
-> 
+>
 >   menu "Floating point emulation"
-> 
+>
 >  ```
 >  	comment "At least one emulation must be selected"
 >  
@@ -1148,10 +1148,10 @@ sudo apt install texinfo
 >  	config FPE_NWFPE_XP
 >  
 >  ```
-> 
+>
 >    endmenu
 
-  
+
 
 - menu/endmenu
 
@@ -1200,7 +1200,7 @@ sudo apt install texinfo
 
    内核中所有的`Makefile` 文件都会引用该文件
 
-2. `include/generated/autoconf.h` 
+2. `include/generated/autoconf.h`
 
    内核中所有代码都会包含此文件
 
@@ -1658,21 +1658,21 @@ install:
 
 ### 内存函数
 
-在normal区 
+在normal区
 
 alloc_page
 
-\__free_page 
+\__free_page
 
-alloc_pages 
+alloc_pages
 
 \__free_pages    
 
-\__get_free_page 
+\__get_free_page
 
 free_page
 
-\__get_free_pages 
+\__get_free_pages
 
 free_pages   
 
@@ -1682,9 +1682,9 @@ kmap
 
 kunmap
 
-kmap_atomic 
+kmap_atomic
 
-\__kummap_atomic 
+\__kummap_atomic
 
 ------
 
@@ -1696,23 +1696,23 @@ kmalloc     normal  物理和虚拟都是连续的   字节为单位申�
 
  kfree
 
- vmalloc   只能保证虚拟连续   字节申请  分配大的内存，不要求物理上连续  能够把不连续的物理内存，映射到一个连续的虚拟空间 
+ vmalloc   只能保证虚拟连续   字节申请  分配大的内存，不要求物理上连续  能够把不连续的物理内存，映射到一个连续的虚拟空间
 
-vzalloc 
+vzalloc
 
 vfree    
 
-dma_alloc_coherent 
+dma_alloc_coherent
 
 dma_free_coherent  
 
-缓存 
+缓存
 
-kmem_cache_create 
+kmem_cache_create
 
-kmem_cache_destory 
+kmem_cache_destory
 
-kmem_cache_alloc 
+kmem_cache_alloc
 
 kmem_cache_free  
 
@@ -1723,10 +1723,10 @@ iounmap
 ## proc 文件系统
 
 - proc 在内存当中。是开机自动挂载的。
-- proc sysfs tmpfs ext4 ext2 NTFS VFAT32 
+- proc sysfs tmpfs ext4 ext2 NTFS VFAT32
 - proc 文件系统的头文件为 `include/linux/proc_fs.h`
 - 在proc文件系统中 `struct proc_dir_entry` 结构可以表示为 `目录` 和 `文件`
-- 会调用 `read_proc_t` 函数的上级函数为 `__proc_file_read` 
+- 会调用 `read_proc_t` 函数的上级函数为 `__proc_file_read`
 
 ### 函数
 
@@ -1837,13 +1837,13 @@ struct file_operations {
 
 ​																	|next==NULL	->stop
 
-​																	|next!=NULL		->show	
+​																	|next!=NULL		->show
 
 ***
 
 ## 设备驱动
 
-char 设备驱动 
+char 设备驱动
 
 网络设备驱动
 
@@ -2019,9 +2019,9 @@ input驱动（键盘、鼠标、触摸屏 等等）、sound、fb（显示屏）�
 
 产生中断异常之后：
 
-- 计算`中断线`[^中断线] 
+- 计算`中断线`[^中断线]
 - 执行 asm_do_IRQ 函数
-- 找到struct irq_desc 
+- 找到struct irq_desc
 
 #### 函数
 
@@ -2150,7 +2150,7 @@ input驱动（键盘、鼠标、触摸屏 等等）、sound、fb（显示屏）�
 
    jiffies
 
-   初始值为 -5×min[^min] 
+   初始值为 -5×min[^min]
 
    #define time_after(a,b)
 
@@ -2371,7 +2371,7 @@ input驱动（键盘、鼠标、触摸屏 等等）、sound、fb（显示屏）�
 
 #### 函数
 
-**#define spin_lock_init(_lock)** 
+**#define spin_lock_init(_lock)**
 
 | 名字   | 说明                    | 备注 |
 | ------ | ----------------------- | ---- |
@@ -2427,7 +2427,7 @@ input驱动（键盘、鼠标、触摸屏 等等）、sound、fb（显示屏）�
 | 参数   | **spinlock_t** 类型指针 |      |
 | 返回值 | 无                      |      |
 
-**#define spin_lock_irqsave(lock, flags)** 
+**#define spin_lock_irqsave(lock, flags)**
 
 | 名字   | 说明                                                | 备注 |
 | ------ | --------------------------------------------------- | ---- |
@@ -2455,7 +2455,7 @@ input驱动（键盘、鼠标、触摸屏 等等）、sound、fb（显示屏）�
 
 头文件 `include/linux/semaphore.h`
 
-如果没有获得信号量，不会死等而会睡眠。当释放信号量时会唤醒睡眠的进程[^进程上下文切换] 
+如果没有获得信号量，不会死等而会睡眠。当释放信号量时会唤醒睡眠的进程[^进程上下文切换]
 
 #### 结构体
 
@@ -2811,7 +2811,7 @@ struct rw_semaphore {
 
 #### 函数
 
-- rwsem init 
+- rwsem init
 
   **#define init_rwsem(sem)**
 
@@ -2852,7 +2852,7 @@ do {
   	seq = read_seqbegin(&foo);
   	...
   } while (read_seqretry(&foo, seq));
-  
+
 ```
 
 #### 结构体
@@ -2871,7 +2871,7 @@ do {
 
 #### 函数
 
-  **#define seqlock_init(x)** 
+  **#define seqlock_init(x)**
 
 | 名字   | 说明 | 备注 |
 | ------ | ---- | ---- |
@@ -2985,7 +2985,7 @@ typedef struct __wait_queue_head wait_queue_head_t;
 
 **#define wait_event_interruptible(wq, condition)**
 
-**#define wait_event_killable(wq, condition)** 
+**#define wait_event_killable(wq, condition)**
 
 **#define wait_event_interruptible_timeout(wq, condition, timeout)**
 
@@ -3011,7 +3011,7 @@ typedef struct __wait_queue_head wait_queue_head_t;
 
 **#define wake_up_interruptible(x)**
 
-**#define wake_up_interruptible_nr(x, nr)** 
+**#define wake_up_interruptible_nr(x, nr)**
 
 **#define wake_up_interruptible_all(x)**
 
@@ -3085,19 +3085,19 @@ typedef struct __wait_queue_head wait_queue_head_t;
 
 3. 同过 `kobject` `kset` `ktype` 在sysfs中创建文件夹和文件
 
-   初始化`struct kobject` 
+   初始化`struct kobject`
 
    **void kobject_init(struct kobject *kobj, struct kobj_type *ktype);**
 
-   注册`struct kobject` 
+   注册`struct kobject`
 
    **int kobject_add(struct kobject *kobj, struct kobject *parent,const char *fmt, ...);**
 
-   注销`struct kobject` 
+   注销`struct kobject`
 
    **void kobject_del(struct kobject *kobj);**
 
-   创建并注册`struct kset` 
+   创建并注册`struct kset`
 
    **struct kset * __must_check kset_create_and_add(const char *name,const struct kset_uevent_ops *u, struct kobject *parent_kobj);**
 
@@ -3105,10 +3105,10 @@ typedef struct __wait_queue_head wait_queue_head_t;
 
    **void kset_unregister(struct kset *kset);**
 
-4. 设备 创建`device` `driver` `bustype` 
+4. 设备 创建`device` `driver` `bustype`
 
    1. 设备模型的核心结构
-   2. 
+   2.
 
 ## 补充内容
 
