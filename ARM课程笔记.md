@@ -3073,6 +3073,43 @@ typedef struct __wait_queue_head wait_queue_head_t;
 
    kobject		kset				ktype
 
+2. 设备模型如何进行匹配
+
+   ```mermaid
+   graph LR
+   xxx_device(设备)
+   xxx_deriver(驱动)
+   xxx_device-->xxx_bustype(总线)
+   xxx_deriver-->xxx_bustype(总线)			
+   ```
+
+3. 同过 `kobject` `kset` `ktype` 在sysfs中创建文件夹和文件
+
+   初始化`struct kobject` 
+
+   **void kobject_init(struct kobject *kobj, struct kobj_type *ktype);**
+
+   注册`struct kobject` 
+
+   **int kobject_add(struct kobject *kobj, struct kobject *parent,const char *fmt, ...);**
+
+   注销`struct kobject` 
+
+   **void kobject_del(struct kobject *kobj);**
+
+   创建并注册`struct kset` 
+
+   **struct kset * __must_check kset_create_and_add(const char *name,const struct kset_uevent_ops *u, struct kobject *parent_kobj);**
+
+   注销`struct kset`
+
+   **void kset_unregister(struct kset *kset);**
+
+4. 设备 创建`device` `driver` `bustype` 
+
+   1. 设备模型的核心结构
+   2. 
+
 ## 补充内容
 
 ### container_of(ptr, type, member)

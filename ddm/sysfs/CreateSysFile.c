@@ -4,7 +4,7 @@
  * @Email:  sunnyfjk@gmai.com
  * @Filename: CreateSysFile.c
  * @Last modified by:   fjk
- * @Last modified time: 2018-10-24T10:55:19+08:00
+ * @Last modified time: 2018-10-24T12:21:26+08:00
  * @License: GPL
  */
 #include <linux/init.h>
@@ -70,7 +70,6 @@ static __exit void CreateSysFile_exit(void) {
   kobject_del(&led1);
   kobject_del(&led2);
   kset_unregister(kset);
-  kfree(kset);
 
   PERR("EXIT\n");
   return;
