@@ -3059,7 +3059,19 @@ typedef struct __wait_queue_head wait_queue_head_t;
 | 参数   | `filp` `struct file` 指针 `wait_address` `wait_queue_head_t` 指针 `poll_table` 指针 |      |
 | 返回值 |                                                              |      |
 
+## 设备模型
 
+1. 层级关系
+
+   xxxx_device 	|  xxxxx_driver 	| xxxx_bustype
+
+   ***
+
+   device	      	|driver			|bustype
+
+   ***
+
+   kobject		kset				ktype
 
 ## 补充内容
 
