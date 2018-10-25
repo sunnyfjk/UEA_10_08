@@ -4,7 +4,7 @@
  * @Email:  sunnyfjk@gmai.com
  * @Filename: platform_adc_driver.c
  * @Last modified by:   fjk
- * @Last modified time: 2018-10-25T15:30:20+08:00
+ * @Last modified time: 2018-10-25T17:00:34+08:00
  * @License: GPL
  */
 
@@ -14,15 +14,16 @@ MODULE_LICENSE("GPL");
 ssize_t char_adc_read(struct file *file, char __user *buffer, size_t size,
                       loff_t *pos) {
   struct char_adc_t *c = file->private_data;
-  uint16_t val = 0;
+
   if (size != sizeof(uint16_t))
     return -EINVAL;
+  if (c->adc_data == 0 && (file->f_flags & O_NONBLOCK))
+    return -EAGAIN;
   adc_device_start(c->v_adc);
-  while (adc_device_staus(c->v_adc))
-    ;
-  val = adc_device_data(c->v_adc);
-  if (copy_to_user(buffer, &val, size))
+  wait_event_interruptible(c->ro, (c->adc_data >= 0));
+  if (copy_to_user(buffer, &c->adc_data, size))
     return -EFAULT;
+  c->adc_data = -1;
   return size;
 }
 ssize_t char_adc_write(struct file *file, const char __user *buffer,
@@ -39,6 +40,25 @@ long char_adc_unlocked_ioctl(struct file *file, unsigned int cmd,
 
   return 0;
 }
+
+unsigned int char_adc_poll(struct file *file, struct poll_table_struct *tab) {
+  struct char_adc_t *c = file->private_data;
+  unsigned int mode = 0;
+  poll_wait(file, &c->ro, tab);
+  if (c->adc_data)
+    mode |= POLLIN;
+  return mode;
+}
+
+irqreturn_t adc_irq_handler(int irq, void *data) {
+
+  struct char_adc_t *c = data;
+  adc_device_intclr(c->v_adc);
+  c->adc_data = adc_device_data(c->v_adc);
+  wake_up(&c->ro);
+  return IRQ_HANDLED;
+}
+
 int char_adc_open(struct inode *inode, struct file *file) {
   struct char_adc_t *c =
       container_of(inode->i_cdev, struct char_adc_t, cdev_adc);
@@ -49,23 +69,35 @@ int char_adc_release(struct inode *inode, struct file *file) { return 0; }
 int adc_probe(struct platform_device *device) {
   struct char_adc_t *cl;
   int ret = 0;
-  struct resource *adc_device_resource =
-      platform_get_resource(device, IORESOURCE_MEM, 0);
+  struct resource *adc_device_resource = NULL, *adc_device_resource_irq = NULL;
+  adc_device_resource = platform_get_resource(device, IORESOURCE_MEM, 0);
   if (IS_ERR_OR_NULL(adc_device_resource))
+    return -EBUSY;
+  adc_device_resource_irq = platform_get_resource(device, IORESOURCE_IRQ, 0);
+  if (IS_ERR_OR_NULL(adc_device_resource_irq))
     return -EBUSY;
   cl = kzalloc(sizeof(*cl), GFP_KERNEL);
   if (IS_ERR_OR_NULL(cl)) {
     ret = -ENOMEM;
     goto kzalloc_char_adc_err;
   }
-  /*初始化adc设备*/
-  cl->v_adc = adc_device_init(adc_device_resource->start,
-                              adc_device_resource->end -
-                                  adc_device_resource->start + 1);
+
+  init_waitqueue_head(&cl->ro);
+  /*初始化adc设备，打开中断 flag=1，关闭中断flag=0*/
+  cl->v_adc = adc_device_init(
+      adc_device_resource->start,
+      adc_device_resource->end - adc_device_resource->start + 1, 1);
   if (IS_ERR_OR_NULL(cl->v_adc)) {
     ret = -ENOMEM;
     goto adc_device_init_err;
   }
+
+  ret = request_irq(adc_device_resource_irq->start, adc_irq_handler, 0,
+                    "adc_irq", cl);
+  if (ret < 0) {
+    goto request_adc_irq_err;
+  }
+  cl->irq = adc_device_resource_irq->start;
   /*申请设备号并注册*/
   ret = alloc_chrdev_region(&cl->num_adc, 0, 1, "adc driver");
   if (ret < 0) {
@@ -77,6 +109,7 @@ int adc_probe(struct platform_device *device) {
   cl->ops_adc.read = char_adc_read;
   cl->ops_adc.write = char_adc_write;
   cl->ops_adc.unlocked_ioctl = char_adc_unlocked_ioctl;
+  cl->ops_adc.poll = char_adc_poll;
   /*初始化字符设别*/
   cdev_init(&cl->cdev_adc, &cl->ops_adc);
   /*注册字符设备*/
@@ -105,6 +138,8 @@ class_create_err:
 cdev_add_adc_err:
   unregister_chrdev_region(cl->num_adc, 1);
 alloc_chrdev_region_err:
+  free_irq(adc_device_resource_irq->start, cl);
+request_adc_irq_err:
   adc_device_exit(cl->v_adc);
 adc_device_init_err:
   kfree(cl);
@@ -121,6 +156,7 @@ int adc_remove(struct platform_device *device) {
   cdev_del(&cl->cdev_adc);
   /*注销 设备号*/
   unregister_chrdev_region(cl->num_adc, 1);
+  free_irq(cl->irq, cl);
   /*注销 adc 设备*/
   adc_device_exit(cl->v_adc);
   /*释放描述adc设备的结构体*/
