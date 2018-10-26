@@ -4,7 +4,7 @@
  * @Email:  sunnyfjk@gmai.com
  * @Filename: platform_input_device.c
  * @Last modified by:   fjk
- * @Last modified time: 2018-10-26T12:14:26+08:00
+ * @Last modified time: 2018-10-26T15:27:51+08:00
  * @License: GPL
  */
 #include "key.h"
@@ -47,6 +47,13 @@ struct resource my_key_resource[] = {
                 .name = "ENTER",
                 .flags = IORESOURCE_IRQ,
             },
+    // [5] =
+    //     {
+    //         .start = IRQ_GPIO_B_START + 10,
+    //         .end = IRQ_GPIO_B_START + 10,
+    //         .name = "KEY_1",
+    //         .flags = IORESOURCE_IRQ,
+    //     },
 };
 
 struct key_info_t key_info[] = {
@@ -56,16 +63,23 @@ struct key_info_t key_info[] = {
             },
         [1] =
             {
-                .name = "UP", .offset = 0xB018, .gpio = 30, .code = KEY_DOWN,
+                .name = "DOWN", .offset = 0xB018, .gpio = 30, .code = KEY_DOWN,
             },
         [2] =
             {
-                .name = "UP", .offset = 0xB018, .gpio = 31, .code = KEY_SPACE,
+                .name = "SPACE",
+                .offset = 0xB018,
+                .gpio = 31,
+                .code = KEY_SPACE,
             },
         [3] =
             {
-                .name = "UP", .offset = 0xB018, .gpio = 9, .code = KEY_ENTER,
+                .name = "ENTER", .offset = 0xB018, .gpio = 9, .code = KEY_ENTER,
             },
+    // [4] =
+    //     {
+    //         .name = "KEY_1", .offset = 0xB018, .gpio = 10, .code = KEY_1,
+    //     },
 };
 struct my_key_t my_key = {
     .key_info = key_info, .key_info_num = ARRAY_SIZE(key_info),
