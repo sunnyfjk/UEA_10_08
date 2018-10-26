@@ -3248,7 +3248,172 @@ typedef struct __wait_queue_head wait_queue_head_t;
 
      int misc_deregister(struct miscdevice *misc);  
 
-   
+   - input 设备
+
+     ****
+
+     kernel 		input 核心，管理input设备
+
+     ​			input 事件层 和用户层联系
+
+     ​			struct input_dev
+
+     ​					同步：上报事件，只有在同步事件产生后才能生效
+
+     ​					相对：鼠标
+
+     ​					绝对：触摸屏
+
+     ​					键盘：键盘
+
+     ------
+
+     hardware	keyboard
+
+     ------
+
+     输出设备查看 ` cat /proc/bus/input/devices`
+
+     ```c
+     struct input_dev {
+             const char *name;
+             const char *phys;
+             const char *uniq;
+             struct input_id id;
+     
+             unsigned long propbit[BITS_TO_LONGS(INPUT_PROP_CNT)];
+     
+             unsigned long evbit[BITS_TO_LONGS(EV_CNT)];
+             unsigned long keybit[BITS_TO_LONGS(KEY_CNT)];
+             unsigned long relbit[BITS_TO_LONGS(REL_CNT)];
+             unsigned long absbit[BITS_TO_LONGS(ABS_CNT)];
+             unsigned long mscbit[BITS_TO_LONGS(MSC_CNT)];
+             unsigned long ledbit[BITS_TO_LONGS(LED_CNT)];
+             unsigned long sndbit[BITS_TO_LONGS(SND_CNT)];
+             unsigned long ffbit[BITS_TO_LONGS(FF_CNT)];
+             unsigned long swbit[BITS_TO_LONGS(SW_CNT)];
+     
+             unsigned int hint_events_per_packet;
+     
+             unsigned int keycodemax;
+             unsigned int keycodesize;
+             void *keycode;
+     
+             int (*setkeycode)(struct input_dev *dev,
+                               const struct input_keymap_entry *ke,
+                               unsigned int *old_keycode);
+             int (*getkeycode)(struct input_dev *dev,
+                               struct input_keymap_entry *ke);
+     
+             struct ff_device *ff;
+     
+             unsigned int repeat_key;
+             struct timer_list timer;
+     
+             int rep[REP_CNT];
+     
+             struct input_mt_slot *mt;
+             int mtsize;
+             int slot;
+             int trkid;
+     
+             struct input_absinfo *absinfo;
+     
+             unsigned long key[BITS_TO_LONGS(KEY_CNT)];
+             unsigned long led[BITS_TO_LONGS(LED_CNT)];
+             unsigned long snd[BITS_TO_LONGS(SND_CNT)];
+             unsigned long sw[BITS_TO_LONGS(SW_CNT)];
+     
+             int (*open)(struct input_dev *dev);
+             void (*close)(struct input_dev *dev);
+             int (*flush)(struct input_dev *dev, struct file *file);
+             int (*event)(struct input_dev *dev, unsigned int type, unsigned int code, int value);
+     
+             struct input_handle __rcu *grab;
+     
+             spinlock_t event_lock;
+             struct mutex mutex;
+     
+             unsigned int users;
+             unsigned int users_private;
+             bool going_away;
+             bool disabled;
+     
+             bool sync;
+     
+             struct device dev;
+     
+             struct list_head        h_list;
+             struct list_head        node;
+     };
+     ```
+
+     ##### 硬件设备
+
+     按下：下降沿
+
+     抬起：上升沿
+
+     | A28  | B30  | B31   | B9    |
+     | ---- | ---- | ----- | ----- |
+     | 0    | 1    | 2     | 3     |
+     | UP   | DOWN | SPACE | ENTER |
+
+     ##### 按键驱动
+
+     1.应为直接通过指针访问设备，所以选择 `paltform` 驱动
+
+     2.因为是通过按键模拟键盘，所以需要使用 `input` 设备
+
+     3.按键需要检测`up` 和 `down` 状态，所以需要使用外部中断
+
+     
+
+     - 应为直接通过指针使用设备，所以选择 `paltform` 驱动
+       - platform_device
+         - 初始化`platform_device` ，设备的名字，可以去匹配驱动
+         - 设备寄存器的地址
+         - 设备使用的中断线
+         - 自己定义的按键资源
+           - 设备支持的键码
+           - 判断引脚的高低电平，需要gpio号
+           - 需要读取按键的高低点平，需要使用寄存器的偏移
+       - platfrom_driver
+         - 初始化 `platfrom_driver` ，`probe` 驱动和设备匹配成功时调用、`remove` 卸载设备或驱动时调用，`driver` 中的`name` 在`/sys/bus/paltform/driver/` 出现的驱动的名字、如果没有 `id_table` 就使用 `name` 匹配设备。
+         - 定义描述按键驱动结构体`struct keyboard_driver_t` 
+           - `input` 核心结构体
+           - 读取按键电平寄存器的虚拟地址
+           - 按键的中断线
+           - 自己定义的按键资源
+             - 设备支持的键码
+             - 判断引脚的高低电平，需要gpio号
+             - 需要读取按键的高低点平，需要使用寄存器的偏移
+         - 设备和驱动匹配成功之后需要的工作`probe`
+           - 获取GPIO的寄存器的物理基地地址、获取GPIO的中断线
+           - 为描述按键驱动的结构体申请空间
+           - 将GPIO的物理基地址映射为虚拟地址
+           - 为`input` 设备申请空间
+           - 初始化input设备
+             - 使 `struct input_dev` 中`name`元素 等于定义的`platform_device` 设备的名字
+             - 使 `struct input_dev` 中`id`元素中的`bustype` 等于`BUS_HOST`，`BUS_HOST` 表示 `platform` 总线
+             - 设备`input` 设备支持的事件 ，因为为键盘驱动所以需要支持的事件有`EV_SYN`、`EV_KEY` 
+             - 设置设备支持的键码，键码的具体值是从`自己定义的资源`中获取的
+           - 注册`input`设备
+           - 为描述设备驱动的结构体赋值
+           - 注册中断
+           - 设置`platform` 驱动的数据，在`remov` 时使用
+         - 卸载设备和驱动需要的工作 `remove`
+           - 获得在`probe` 执行时创建的资源 
+           - 释放注册的中断
+           - 注销`input`设备
+           - 释放`struct input_dev` 设备结构体
+           - 取消寄存器物理虚拟地址的映射
+           - 释放描述设备驱动的结构体
+         - 中断处理函数
+           - 获取描述产生中断的设备驱动结构体
+           - 判断按键 `up` 或 `down` 
+           - 上报事件
+           - 上报同步事件
 
    
 
