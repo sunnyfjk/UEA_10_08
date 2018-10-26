@@ -3211,7 +3211,46 @@ typedef struct __wait_queue_head wait_queue_head_t;
        };
        ```
 
-       
+6. 设比分类
+
+   - linux 是如何实现设备的自动创建或删除
+
+     自动创建设备文件，需要使用mdev或udev自动创建或删除，在`/sys/class/xxxx/led0`,下某个类中出现设备 mdev 或 udev 就会自动创建设备。mdev 是运行一次扫描一次/sys，需要重复运行，或使用mdev+热插拔事件 实现实时创建或删除设备。脚本 /proc/sys/kernel/hotplug，当注册或注销设备时会运行`mdev -s`， udev 是一个守护进程，在后台一直进行。
+
+   - 设备分类
+
+     将字符设备进行分类 `input` 设备（鼠标，键盘） `fb` 设备 `sound` 设备 `misc` `自定义类` 
+
+   - misc 设备
+
+     ```c
+     struct miscdevice  {
+         	/*MISC_DYNAMIC_MINOR*/
+             int minor; 
+         	/*pdev->name*/
+             const char *name;
+         	/*函数操作集*/
+             const struct file_operations *fops;
+             struct list_head list;
+             struct device *parent;
+             struct device *this_device;
+             const char *nodename;
+             umode_t mode;
+     };
+     
+     ```
+
+     注册 misc 设备
+
+     int misc_register(struct miscdevice * misc);
+
+     注销 misc 设备
+
+     int misc_deregister(struct miscdevice *misc);  
+
+   
+
+   
 
 ## 补充内容
 
