@@ -3415,7 +3415,148 @@ typedef struct __wait_queue_head wait_queue_head_t;
            - 上报事件
            - 上报同步事件
 
-   
+7. GSLX680 (IIC)
+
+   一条时钟线，一条数据线
+
+   ***
+
+   GSLx680 芯片驱动流程
+
+   ```mermaid
+   graph LR
+   gslx680Driver(GSLX6818驱动)
+   IICDriver(IIC 控制器驱动)
+   gslx680Device(GSLX680 芯片)
+   gslx680Driver-->| 通信 |IICDriver
+   IICDriver-->| 通信 |gslx680Device
+   ```
+
+   sp5p6818中有IIC控制器，通信时在IIC控制器发送接收数据。
+
+   Linux
+
+   /dev/xxx app
+
+   ------
+
+   misc	cdev 	input	blokc 	net
+
+   ------
+
+   strucr i2c_client  struct i2c_driver 匹配成功后会调用probe
+
+   ------
+
+   IIC核心，对应结构体`struct i2c_adapter` ,调用读写方法。提供了IIC总线
+
+   ------
+
+   IIC控制器驱动，提供读写方法。
+
+   - 波特率
+   - 数据格式，一般每次传输据都是8位，
+   - 地址，做主不需要地址，从 需要
+   - ACK
+
+   ------
+
+   IIC控制器(数据寄存器)，在s5p6818内部
+
+   IIC总线链接EEPOM、FT5X06(触摸屏控制器)、GSLX680(触摸屏控制器)、MMA7660（陀螺仪），一般设备焊接在板子上，近距离通信
+
+   ------
+
+   ​			-------clk------
+
+   s5p6818 	-------dat------ gslx680-------ts
+
+   ​			-------irq-------
+
+   ​			-------wake--- gpioc2
+
+   支持最多10点触摸
+
+   1.内核启动时调用，nxp_board_devs_register
+
+   ​				-----------> i2c_register_board_info------->i2c_borad_info变成i2c_devinfo,然后将i2c_devinfo添加到链表
+
+   2.内核启动过程中调用i2c_add_adapter------>i2c_register_adapter
+
+   ​				------------>i2c_scan_static_board_info---->扫描链表--->把链表中的每一个i2c_devinfo中的i2c_board_info拿出来分配一个i2c_client结构体，然后把i2c_board_info中的信息复制到i2c_client---->device_register注册设备
+
+   GSLX680 官方驱动不完全开源，学会移植即可
+
+   需要了解的硬件 GSLX680 链接到了哪个IIC接口，中断线是什么。
+
+   MCU_SCL1	178 GPIOD4
+
+   MCU_SDA1	179	GPIOD5
+
+   CAP_INT		GPIO_C29 UARTTX4 
+
+   TOUCH_INT	180	GPIOB29
+
+   [i2c 注册的设备文件](file:///home/fjk/s5p6818sdk_lzy1/Linux/src/llinux/arch/arm/plat-s5p6818/x6818/device.c) 399行
+
+   ```c
+   static struct i2c_board_info __initdata gslX680_i2c_bdi = {
+           .type   = "gslX680",
+       	/*地址*/
+           .addr   = (0x40),
+           .irq    = PB_PIO_IRQ(CFG_IO_TOUCH_PENDOWN_DETECT),
+   };
+   #if defined(CONFIG_TOUCHSCREEN_GSLX680)
+   		/*注册设备*/
+           printk("plat: add touch(gslX680) device\n");
+           i2c_register_board_info(GSLX680_I2C_BUS, &gslX680_i2c_bdi, 1);
+   #endif
+   ```
+
+   - gslX680_init 初始化，拉低wake->delay->拉高wake
+
+   - gslX680_shutdown_low 拉低wake
+
+   - gslX680_shutdown_high 拉高wake
+
+   - join_bytes 把两个8为数据合并为一个16为数据
+
+   - static u32 gsl_write_interface(struct i2c_client *client, const u8 reg, u8 *buf, u32 num) 给gsl设备某个寄存器写数据，把buf+1中的num个字节写入client设备reg起始的寄存器中
+
+   - static int gsl_ts_write(struct i2c_client *client, u8 addr, u8 *pdata,int datalen) 和上面内容一样，datalen<125
+
+   - int gsl_ts_readbyte(struct i2c_client *client, u8 addr, u8 *pdata) 从client设备的addr寄存器中读一个字节，放到pdata指向的空间
+
+   - static int gsl_ts_read(struct i2c_client *client, u8 addr, u8 *pdata, unsigned int datalen)从client设备的addr寄存器连续中读datalen个字节，放到pdata指向的空间
+
+   - fw2buf(u8 *buf, const u32 *fw) 把32为数转化为u8类型
+
+   - void gsl_load_fw(struct i2c_client *client) 下载固件
+
+     寄存器的地址和寄存器的值放在数组GSLX680_FW中，数组GSLX680_FW中的元素都是结构体，结构体成员非别是寄存器地址和寄存器的值
+
+   - int test_i2c(struct i2c_client *client) 测试i2c 是否可用
+
+   - void startup_chip(struct i2c_client *client) 启动芯片
+
+   - void reset_chip(struct i2c_client *client) 重启芯片
+
+   - void clr_reg(struct i2c_client *client)  清空寄存器
+
+   - int init_chip(struct i2c_client *client) 初始化芯片
+
+   - 移植GSLX680需要修改什么
+
+     1. [修改 gslx680 在板子上设备的信息](arch/arm/plat-s5p6818/x6818/device.c) 399行
+        - type（名字）
+        - addr (iic 设备的地址)
+        - irq   (iic设备的中断号)
+        - 注册时需要修改iic控制器 函数为（ i2c_register_board_info(GSLX680_I2C_BUS, &gslX680_i2c_bdi, 1)）
+     2. 驱动中需要修改的信息
+        - GSLX680设备地址的宏 GSLX680_I2C_ADDR
+        - GSLX680设备的中断号 IRQ_PORT 
+        - GSLX680设备唤醒的引脚
+        - 修改屏幕大小的宏(`SCREEN_MAX_X` `SCREEN_MAX_Y`)
 
 ## 补充内容
 
