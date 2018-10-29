@@ -2161,6 +2161,132 @@ input驱动（键盘、鼠标、触摸屏 等等）、sound、fb（显示屏）�
 
      void getnstimeofday(struct timespec *ts);
 
+6. 内核定时器
+
+     基于`jiffies`
+
+     计算定时时间  
+
+     - 结构体
+
+       ```c
+       struct timer_list {
+               /*
+                * All fields that change during normal runtime grouped to the
+                * same cacheline
+                */
+               struct list_head entry;
+               unsigned long expires;
+               struct tvec_base *base;//管理内核所有的定时器
+               /*
+               struct tvec_root tv1;//没一条链表上都放着统一到期的链表
+               256---------已经到期的定时器
+               255---------1ms
+               .
+               .
+               .
+               000----------255ms
+               
+               大于255ms
+               struct tvec tv2;
+               struct tvec tv3;
+               struct tvec tv4;
+               struct tvec tv5;     	
+               */
+               void (*function)(unsigned long);
+               unsigned long data;
+       
+               int slack;
+       
+       #ifdef CONFIG_TIMER_STATS
+               int start_pid;
+               void *start_site;
+               char start_comm[16];
+       #endif
+       #ifdef CONFIG_LOCKDEP
+               struct lockdep_map lockdep_map;
+       #endif  
+       };
+       ```
+
+     - 函数
+
+       #define setup_timer(timer, fn, data) 
+       void add_timer(struct timer_list *timer);
+
+       int del_timer(struct timer_list * timer);
+
+       int mod_timer(struct timer_list *timer, unsigned long expires);
+
+     [高精度定时器](https://blog.csdn.net/zdy0_2004/article/details/47623057)
+
+     - 结构体
+
+       ```c
+       struct hrtimer {
+               struct timerqueue_node          node;
+               ktime_t                         _softexpires;
+               enum hrtimer_restart            (*function)(struct hrtimer *);
+               struct hrtimer_clock_base       *base;
+               unsigned long                   state;
+       #ifdef CONFIG_TIMER_STATS
+               int                             start_pid;
+               void                            *start_site;
+               char                            start_comm[16];
+       #endif
+       };
+       ```
+
+     - 函数
+
+       **void hrtimer_init(struct hrtimer *timer, clockid_t clock_id,enum hrtimer_mode mode)**
+
+       | 名字   | 说明                                                         | 备注 |
+       | ------ | ------------------------------------------------------------ | ---- |
+       | 功能   | 初始化高精度定时器                                           |      |
+       | 参数   | `timer` `struct hrtimer` 指针  `clock_id ` [时钟类型](https://www.cnblogs.com/memo-store/p/5658277.html) `mode` 模式 |      |
+       | 返回值 |                                                              |      |
+
+       **int hrtimer_start(struct hrtimer *timer, ktime_t tim, const enum hrtimer_mode mode);**
+
+       | 名字   | 说明                                                     | 备注                 |
+       | ------ | -------------------------------------------------------- | -------------------- |
+       | 功能   | 启动高精度定时器                                         |                      |
+       | 参数   | `timer` `struct hrtimer` 指针 `tim` 定时时间 `mode` 模式 | [^enum hrtimer_mode] |
+       | 返回值 |                                                          |                      |
+
+     - **enum hrtimer_restart            (*function)(struct hrtimer *);** 
+
+       | 名字   | 说明                                                         | 备注 |
+       | ------ | ------------------------------------------------------------ | ---- |
+       | 功能   | 定时器回掉函数                                               |      |
+       | 参数   | `timer` `struct hrtimer` 指针                                |      |
+       | 返回值 | `HRTIMER_NORESTART`  定时器使用一次`HRTIMER_RESTART`       定时器重复 |      |
+
+     - **static inline ktime_t ktime_set(const long secs, const unsigned long nsecs)**
+
+       | 名字   | 说明                   | 备注 |
+       | ------ | ---------------------- | ---- |
+       | 功能   | 设置`ktime_t` 类型的值 |      |
+       | 参数   | `secs` 秒 `nsecs` 纳秒 |      |
+       | 返回值 |                        |      |
+
+     - **int hrtimer_cancel(struct hrtimer *timer)** 
+
+       | 名字   | 说明                          | 备注 |
+       | ------ | ----------------------------- | ---- |
+       | 功能   | 删除定时器                    |      |
+       | 参数   | `timer` `struct hrtimer` 指针 |      |
+       | 返回值 |                               |      |
+
+     - **static inline u64 hrtimer_forward_now(struct hrtimer *timer,ktime_t interval)** 
+
+       | 名字   | 说明                                              | 备注 |
+       | ------ | ------------------------------------------------- | ---- |
+       | 功能   | 从现在的时间开始延时                              |      |
+       | 参数   | `timer` `struct hrtimer` 指针 `interval` 延时时间 |      |
+       | 返回值 |                                                   |      |
+
 ## 中断下半部
 
 1. 软中断
