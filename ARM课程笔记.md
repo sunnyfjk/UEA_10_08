@@ -3799,6 +3799,441 @@ typedef struct __wait_queue_head wait_queue_head_t;
     dpkg -l |grep ^rc|awk '{print $2}' |sudo xargs dpkg -P
     ```
 
+- ## [MySQL WorkBench中文教程](https://www.cnblogs.com/imxiu/p/3409082.html)
+
+  > - PK – Primary key（主键）
+  > - NN – Not null（非空）
+  > - UQ – Unique（唯一）
+  > - BIN – Binary（二进制数）
+  > - UN – Unsigned（无符号）
+  > - ZF – Zero fill（补零）
+  > - AI – Autoincrement（自动增量）
+
+- C 连接mysql数据库
+
+  [中文API](http://tool.oschina.net/apidocs/apidoc?api=mysql-5.1-zh) 
+
+  - 安装的动态库
+
+    ```shell
+    sudo apt install libmysqlclient-dev
+    ```
+
+  - 需要使用的头文件
+
+    ```c
+    #include<mysql/mysql.h>
+    ```
+
+  - 编译时需要连接的库
+
+    ```
+    -lmysqlclinet
+    ```
+
+  - 程序API介绍
+
+    - **MYSQL *mysql_real_connect(MYSQL *mysql, const char *host, const char *user, const char *passwd, const char *db, unsigned int port, const char *unix_socket, unsigned long client_flag)**
+
+      **描述**
+
+      mysql_real_connect()尝试与运行在主机上的MySQL数据库引擎建立连接。在你能够执行需要有效MySQL连接句柄结构的任何其他API函数之前，mysql_real_connect()必须成功完成。
+
+      参数的指定方式如下：
+
+      ·         第1个参数应是已有MYSQL结构的地址。调用mysql_real_connect()之前，必须调用mysql_init()来初始化MYSQL结构。通过mysql_options()调用，可更改多种连接选项。请参见[25.2.3.48节，“mysql_options()”](http://tool.oschina.net/uploads/apidocs/mysql-5.1-zh/apis.html#mysql-options)。
+
+      ·         “host”的值必须是主机名或IP地址。如果“host”是NULL或字符串"localhost"，连接将被视为与本地主机的连接。如果操作系统支持套接字（Unix）或命名管道（Windows），将使用它们而不是TCP/IP连接到服务器。
+
+      ·         “user”参数包含用户的MySQL登录ID。如果“user”是NULL或空字符串""，用户将被视为当前用户。在UNIX环境下，它是当前的登录名。在Windows ODBC下，必须明确指定当前用户名。请参见[26.1.9.2节，“在Windows上配置MyODBC DSN”](http://tool.oschina.net/uploads/apidocs/mysql-5.1-zh/connectors.html#dsn-on-windows)。
+
+      ·         “passwd”参数包含用户的密码。如果“passwd”是NULL，仅会对该用户的（拥有1个空密码字段的）用户表中的条目进行匹配检查。这样，数据库管理员就能按特定的方式设置MySQL权限系统，根据用户是否拥有指定的密码，用户将获得不同的权限。
+
+      **注释：**调用mysql_real_connect()之前，不要尝试加密密码，密码加密将由客户端API自动处理。
+
+      ·         “db”是数据库名称。如果db为NULL，连接会将默认的数据库设为该值。
+
+      ·         如果“port”不是0，其值将用作TCP/IP连接的端口号。注意，“host”参数决定了连接的类型。
+
+      ·         如果unix_socket不是NULL，该字符串描述了应使用的套接字或命名管道。注意，“host”参数决定了连接的类型。
+
+      ·         client_flag的值通常为0，但是，也能将其设置为下述标志的组合，以允许特定功能：
+
+    - **void mysql_close(MYSQL *mysql)**
+
+      **描述**
+
+      关闭前面打开的连接。如果句柄是由mysql_init()或mysql_connect()自动分配的，mysql_close()还将解除分配由mysql指向的连接句柄。
+
+      **返回值**
+
+      无。
+
+      **错误**
+
+      无。
+
+    - **MYSQL_STMT *mysql_stmt_init(MYSQL *mysql)**
+
+      **描述**
+
+      创建MYSQL_STMT句柄。对于该句柄，应使用mysql_stmt_close(MYSQL_STMT *)释放。
+
+      **返回值**
+
+      成功时，返回指向MYSQL_STMT结构的指针。如果内存溢出，返回NULL。
+
+      **错误**
+
+      ·         CR_OUT_OF_MEMORY
+
+      内存溢出。
+
+    - **my_bool mysql_stmt_close(MYSQL_STMT *)**
+
+      **描述**
+
+      关闭预处理语句。此外，mysql_stmt_close()还会取消由“stmt”指向的语句句柄分配。
+
+      如果当前语句已挂起或未读取结果，该函数将取消它们，以便能执行下一个查询，
+
+      **返回值**
+
+      如果成功释放了语句，返回0。如果出现错误，返回非0值。
+
+      **错误**
+
+      ·         CR_SERVER_GONE_ERROR
+
+      MySQL服务器不可用。
+
+      ·         CR_UNKNOWN_ERROR
+
+      出现未知错误。
+
+    - **int mysql_stmt_prepare(MYSQL_STMT *stmt, const char *query, unsigned long length)**
+
+      **描述**
+
+      给定mysql_stmt_init()返回的语句句柄，准备字符串查询指向的SQL语句，并返回状态值。字符串长度应由“length”参量给出。字符串必须包含1条SQL语句。不应为语句添加终结用分号(‘;’)或\g。
+
+      通过将问号字符“?”嵌入到SQL字符串的恰当位置，应用程序可包含SQL语句中的一个或多个参数标记符。
+
+      标记符仅在SQL语句中的特定位置时才是合法的。例如，它可以在INSERT语句的VALUES()列表中（为行指定列值），或与WHERE子句中某列的比较部分（用以指定比较值）。但是，对于ID（例如表名或列名），不允许使用它们，不允许指定二进制操作符（如等于号“=”）的操作数。后一个限制是有必要的，原因在于，无法确定参数类型。一般而言，参数仅在DML（数据操作语言）语句中才是合法的，在DDL（数据定义语言）语句中不合法。
+
+      执行语句之前，必须使用mysql_stmt_bind_param()，将参数标记符与应用程序变量绑定在一起。
+
+      **返回值**
+
+      如果成功处理了语句，返回0。如果出现错误，返回非0值。
+
+      **错误**
+
+      ·         CR_COMMANDS_OUT_OF_SYNC
+
+      以不恰当的顺序执行了命令。
+
+      ·         CR_OUT_OF_MEMORY
+
+      内存溢出。
+
+      ·         CR_SERVER_GONE_ERROR
+
+      MySQL服务器不可用。
+
+      ·         CR_SERVER_LOST
+
+      查询过程中，与服务器的连接丢失。
+
+      ·         CR_UNKNOWN_ERROR
+
+      出现未知错误。
+
+      如果准备操作失败（即mysql_stmt_prepare()返回非0值），可通过调用mysql_stmt_error()获取错误消息。
+
+    - **unsigned long mysql_stmt_param_count(MYSQL_STMT *stmt)**
+
+      **描述**
+
+      返回预处理语句中参数标记符的数目。
+
+      **返回值**
+
+      表示语句中参数数目的无符号长整数。
+
+      **错误**
+
+      无。
+
+      **示例：**
+
+      关于mysql_stmt_param_count()的用法，请参见[25.2.7.10节，“mysql_stmt_execute()”](http://tool.oschina.net/uploads/apidocs/mysql-5.1-zh/apis.html#mysql-stmt-execute)中给出的示例。
+
+    - my_bool mysql_stmt_bind_param(MYSQL_STMT *stmt, MYSQL_BIND *bind)
+
+      **描述**
+
+      mysql_stmt_bind_param()用于为SQL语句中的参数标记符绑定数据，以传递给mysql_stmt_prepare()。它使用MYSQL_BIND结构来提供数据。“bind”是MYSQL_BIND结构的某一数组的地址。按照客户端库的预期，对于查询中出现的每个“?”参数标记符，数组中均包含1个元素。
+
+      假定你准备了下述语句：
+
+    ```
+      INSERT INTO mytbl VALUES(?,?,?)
+    ```
+
+      绑定参数时，MYSQL_BIND结构的数组包含3个元素，并能声明如下：
+
+    ```
+      MYSQL_BIND bind[3];
+    ```
+
+      在[25.2.5节，“C API预处理语句的数据类型”](http://tool.oschina.net/uploads/apidocs/mysql-5.1-zh/apis.html#c-api-prepared-statement-datatypes)中，介绍了应设置的每个MYSQL_BIND元素的成员。
+
+      **返回值**
+
+      如果绑定成功，返回0。如果出现错误，返回非0值。
+
+      **错误**
+
+      ·         CR_INVALID_BUFFER_USE
+
+      指明“bind”（绑定）是否将提供程序块中的长数据，以及缓冲类型是否为非字符串或二进制类型。
+
+      ·         CR_UNSUPPORTED_PARAM_TYPE
+
+      不支持该转换。或许buffer_type值是非法的，或不是所支持的类型之一。
+
+      ·         CR_OUT_OF_MEMORY
+
+      内存溢出。
+
+      ·         CR_UNKNOWN_ERROR
+
+      出现未知错误。
+
+    - int mysql_stmt_prepare(MYSQL_STMT *stmt, const char *query, unsigned long length)
+
+      **描述**
+
+      给定mysql_stmt_init()返回的语句句柄，准备字符串查询指向的SQL语句，并返回状态值。字符串长度应由“length”参量给出。字符串必须包含1条SQL语句。不应为语句添加终结用分号(‘;’)或\g。
+
+      通过将问号字符“?”嵌入到SQL字符串的恰当位置，应用程序可包含SQL语句中的一个或多个参数标记符。
+
+      标记符仅在SQL语句中的特定位置时才是合法的。例如，它可以在INSERT语句的VALUES()列表中（为行指定列值），或与WHERE子句中某列的比较部分（用以指定比较值）。但是，对于ID（例如表名或列名），不允许使用它们，不允许指定二进制操作符（如等于号“=”）的操作数。后一个限制是有必要的，原因在于，无法确定参数类型。一般而言，参数仅在DML（数据操作语言）语句中才是合法的，在DDL（数据定义语言）语句中不合法。
+
+      执行语句之前，必须使用mysql_stmt_bind_param()，将参数标记符与应用程序变量绑定在一起。
+
+      **返回值**
+
+      如果成功处理了语句，返回0。如果出现错误，返回非0值。
+
+      **错误**
+
+      ·         CR_COMMANDS_OUT_OF_SYNC
+
+      以不恰当的顺序执行了命令。
+
+      ·         CR_OUT_OF_MEMORY
+
+      内存溢出。
+
+      ·         CR_SERVER_GONE_ERROR
+
+      MySQL服务器不可用。
+
+      ·         CR_SERVER_LOST
+
+      查询过程中，与服务器的连接丢失。
+
+      ·         CR_UNKNOWN_ERROR
+
+      出现未知错误。
+
+      如果准备操作失败（即mysql_stmt_prepare()返回非0值），可通过调用mysql_stmt_error()获取错误消息。
+
+    - unsigned int mysql_num_fields(MYSQL_RES *result)
+
+      要想传递MYSQL*参量取而代之，请使用无符号整数mysql_field_count(MYSQL *mysql)。
+
+      **描述**
+
+      返回结果集中的行数。
+
+      注意，你可以从指向结果集的指针或指向连接句柄的指针获得行数。如果mysql_store_result()或mysql_use_result()返回NULL，应使用连接句柄（因而没有结果集指针）。在该情况下，可调用mysql_field_count()来判断mysql_store_result()是否生成了非空结果。这样，客户端程序就能采取恰当的行动，而不需要知道查询是否是SELECT语句（或类似SELECT的语句）。在下面的示例中，介绍了执行该操作的方式。
+
+      请参见[25.2.13.1节，“为什么在mysql_query()返回成功后，mysql_store_result()有时会返回NULL``”](http://tool.oschina.net/uploads/apidocs/mysql-5.1-zh/apis.html#null-mysql-store-result)。
+
+    - int mysql_stmt_execute(MYSQL_STMT *stmt)
+
+      **描述**
+
+      mysql_stmt_execute()执行与语句句柄相关的预处理查询。在该调用期间，将当前绑定的参数标记符的值发送到服务器，服务器用新提供的数据替换标记符。
+
+      如果语句是UPDATE、DELETE或INSERT，通过调用mysql_stmt_affected_rows()，可发现更改、删除或插入的总行数。如果这是诸如SELECT等能生成结果集的语句，调用任何其他能导致查询处理的函数之前，必须调用mysql_stmt_fetch()来获取数据。关于如何获取结果的更多信息，请参见[25.2.7.11节，“mysql_stmt_fetch()”](http://tool.oschina.net/uploads/apidocs/mysql-5.1-zh/apis.html#mysql-stmt-fetch)。
+
+      对于生成结果集的语句，执行语句之前，可通过调用mysql_stmt_attr_set()，请求mysql_stmt_execute()为语句打开光标。如果多次执行某一语句，在打开新的光标前，mysql_stmt_execute()将关闭任何已打开的光标。
+
+      **返回值**
+
+      如果执行成功，返回0。如果出现错误，返回非0值。
+
+      **错误**
+
+      ·         CR_COMMANDS_OUT_OF_SYNC
+
+      以不恰当的顺序执行了命令。
+
+      ·         CR_OUT_OF_MEMORY
+
+      内存溢出。
+
+      ·         CR_SERVER_GONE_ERROR
+
+      MySQL服务器不可用。
+
+      ·         CR_SERVER_LOST
+
+      在查询过程中，与服务器的连接丢失。
+
+      ·         CR_UNKNOWN_ERROR
+
+      出现未知错误。
+
+    - my_bool mysql_stmt_bind_result(MYSQL_STMT *stmt, MYSQL_BIND *bind)
+
+      **描述**
+
+      mysql_stmt_bind_result()用于将结果集中的列与数据缓冲和长度缓冲关联（绑定）起来。当调用mysql_stmt_fetch()以获取数据时，MySQL客户端／服务器协议会将绑定列的数据置于指定的缓冲区内。
+
+      调用mysql_stmt_fetch()之前，必须将所有列绑定到缓冲。“bind”是MYSQL_BIND结构某一数组的地址。按照客户端库的预期，对于结果集中的每一列，数组应包含相应的元素。如果未将列绑定到MYSQL_BIND结构，mysql_stmt_fetch()将简单地忽略数据获取操作。缓冲区应足够大，足以容纳数据值，这是因为协议不返回成块的数据值。
+
+      可以在任何时候绑定或再绑定列，即使已部分检索了结果集后也同样。新的绑定将在下一次调用mysql_stmt_fetch()时起作用。假定某一应用程序绑定了结果集中的列，并调用了mysql_stmt_fetch()。客户端／服务器协议将返回绑定缓冲区中的数据。接下来，假定应用程序将多个列绑定到不同的缓冲。该协议不会将数据置于新绑定的缓冲区，直至下次调用mysql_stmt_fetch()为止。
+
+      要想绑定列，应用程序将调用mysql_stmt_bind_result()，并传递类型、地址、以及长度缓冲的地址。在[25.2.5节，“C API预处理语句的数据类型”](http://tool.oschina.net/uploads/apidocs/mysql-5.1-zh/apis.html#c-api-prepared-statement-datatypes)中，介绍了应设置的各MYSQL_BIND元素的成员。
+
+      **返回值**
+
+      如果绑定成功，返回0。如果出现错误，返回非0值。
+
+      **错误**
+
+      ·         CR_UNSUPPORTED_PARAM_TYPE
+
+      不支持该转换。或许buffer_type值是非法的，或不是所支持的类型之一。
+
+      ·         CR_OUT_OF_MEMORY
+
+      内存溢出。
+
+      ·         CR_UNKNOWN_ERROR
+
+      出现未知错误。
+
+      **示例：**
+
+      关于mysql_stmt_bind_result()的用法，请参见[25.2.7.11节，“mysql_stmt_fetch()”](http://tool.oschina.net/uploads/apidocs/mysql-5.1-zh/apis.html#mysql-stmt-fetch)中给出的示例。
+
+    - int mysql_stmt_store_result(MYSQL_STMT *stmt)
+
+      **描述**
+
+      对于成功生成结果集的所有语句（SELECT、SHOW、DESCRIBE、EXPLAIN），而且仅当你打算对客户端的全部结果集进行缓冲处理时，必须调用mysql_stmt_store_result()，以便后续的mysql_stmt_fetch()调用能返回缓冲数据。
+
+      对于其他语句，没有必要调用mysql_stmt_store_result()，但如果调用了它，也不会造成任何伤害或导致任何性能问题。通过检查mysql_stmt_result_metadata()是否返回NULL，可检测语句是否生成了结果集。更多信息，请参见[25.2.7.22节，“mysql_stmt_result_metadata()”](http://tool.oschina.net/uploads/apidocs/mysql-5.1-zh/apis.html#mysql-stmt-result-metadata)。
+
+      **注释：默认情况下，对于**mysql_stmt_store_result()中的所有列，MySQL不计算MYSQL_FIELD->max_length，这是因为，计算它会显著降低mysql_stmt_store_result()的性能，而且大多数应用程序不需要max_length。如果打算更新max_length，可通过调用mysql_stmt_attr_set(MYSQL_STMT, STMT_ATTR_UPDATE_MAX_LENGTH, &flag)启用它。请参见[25.2.7.3节，“mysql_stmt_attr_set()”](http://tool.oschina.net/uploads/apidocs/mysql-5.1-zh/apis.html#mysql-stmt-attr-set)。
+
+      **返回值**
+
+      如果成功完成了对结果的缓冲处理，返回0。如果出现错误，返回非0值。
+
+      **错误**
+
+      ·         CR_COMMANDS_OUT_OF_SYNC
+
+      以不恰当的顺序执行了命令。
+
+      ·         CR_OUT_OF_MEMORY
+
+      内存溢出。
+
+      ·         CR_SERVER_GONE_ERROR
+
+      MySQL服务器不可用。
+
+      ·         CR_SERVER_LOST
+
+      在查询过程中，与服务器的连接丢失。
+
+      ·         CR_UNKNOWN_ERROR
+
+      出现未知错误。
+
+    - int mysql_stmt_fetch(MYSQL_STMT *stmt)
+
+      **描述**
+
+      mysql_stmt_fetch()返回结果集中的下一行。仅能当结果集存在时调用它，也就是说，调用了能创建结果集的mysql_stmt_execute()之后，或当mysql_stmt_execute()对整个结果集即行缓冲处理后调用了mysql_stmt_store_result()。
+
+      使用mysql_stmt_bind_result()绑定的缓冲，mysql_stmt_fetch()返回行数据。对于当前列集合中的所有列，它将返回缓冲内的数据，并将长度返回到长度指针。
+
+      调用mysql_stmt_fetch()之前，应用程序必须绑定所有列。
+
+      如果获取的数据值是NULL值，对应MYSQL_BIND结构的*is_null值将包含TRUE (1)。否则，将根据应用程序指定的缓冲类型，在*buffer和*length内返回数据及其长度。每个数值类型和临时类型都有固定的长度，请参见下面的表格。字符串类型的长度取决于由data_length指明的实际数据值的长度。
+
+    | **类型**            | **长度**           |
+    | ------------------- | ------------------ |
+    | MYSQL_TYPE_TINY     | 1                  |
+    | MYSQL_TYPE_SHORT    | 2                  |
+    | MYSQL_TYPE_LONG     | 4                  |
+    | MYSQL_TYPE_LONGLONG | 8                  |
+    | MYSQL_TYPE_FLOAT    | 4                  |
+    | MYSQL_TYPE_DOUBLE   | 8                  |
+    | MYSQL_TYPE_TIME     | sizeof(MYSQL_TIME) |
+    | MYSQL_TYPE_DATE     | sizeof(MYSQL_TIME) |
+    | MYSQL_TYPE_DATETIME | sizeof(MYSQL_TIME) |
+    | MYSQL_TYPE_STRING   | data length        |
+    | MYSQL_TYPE_BLOB     | data_length        |
+
+      **返回值**
+
+    | **返回值**           | **描述**                                                     |
+    | -------------------- | ------------------------------------------------------------ |
+    | 0                    | 成功，数据被提取到应用程序数据缓冲区。                       |
+    | 1                    | 出现错误。通过调用mysql_stmt_errno()和mysql_stmt_error()，可获取错误代码和错误消息。 |
+    | MYSQL_NO_DATA        | 不存在行／数据。                                             |
+    | MYSQL_DATA_TRUNCATED | 出现数据截短。                                               |
+
+      不返回MYSQL_DATA_TRUNCATED，除非用mysql_options()启用了截短通报功能。返回该值时，为了确定截短的参数是哪个，可检查MYSQL_BIND参数结构的错误成员。
+
+      **错误**
+
+      ·         CR_COMMANDS_OUT_OF_SYNC
+
+      以不恰当的顺序执行了命令。
+
+      ·         CR_OUT_OF_MEMORY
+
+      内存溢出。
+
+      ·         CR_SERVER_GONE_ERROR
+
+      MySQL服务器不可用。
+
+      ·         CR_SERVER_LOST
+
+      在查询过程中，与服务器的连接丢失。
+
+      ·         CR_UNKNOWN_ERROR
+
+      出现未知错误。
+
+      ·         CR_UNSUPPORTED_PARAM_TYPE
+
+      缓冲类型为MYSQL_TYPE_DATE、MYSQL_TYPE_TIME、MYSQL_TYPE_DATETIME、或MYSQL_TYPE_TIMESTAMP，但数据类型不是DATE、TIME、DATETIME、或TIMESTAMP。
+
+      ·         从mysql_stmt_bind_result()返回所有其他不支持的转换错误。
+
 ## 补充内容
 
 ### container_of(ptr, type, member)
