@@ -3781,6 +3781,24 @@ typedef struct __wait_queue_head wait_queue_head_t;
     sudo service mysql restart 
     ```
 
+  - 停止mysql服务 
+
+    ```shell
+    sudo service mysql stop
+    ```
+
+  - 卸载mysql
+
+    ```shell
+    sudo apt autoremove mariadb-server-10.0
+    ```
+
+  - 清除配置文件
+
+    ```shell
+    dpkg -l |grep ^rc|awk '{print $2}' |sudo xargs dpkg -P
+    ```
+
 ## 补充内容
 
 ### container_of(ptr, type, member)
