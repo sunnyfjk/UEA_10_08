@@ -3684,6 +3684,103 @@ typedef struct __wait_queue_head wait_queue_head_t;
         - GSLX680设备唤醒的引脚
         - 修改屏幕大小的宏(`SCREEN_MAX_X` `SCREEN_MAX_Y`)
 
+## 项目内容
+
+### 安装配置mysql
+
+- 安装 mysql
+
+  ```shell
+  sudo apt install mariadb-server-10.0
+  ```
+
+- 安装 mysql 客户端
+
+  ```shell
+  sudo apt install mysql-client
+  ```
+
+- 配置mysql
+
+  ```shell
+  sudo mysql_secure_installation
+  NOTE: RUNNING ALL PARTS OF THIS SCRIPT IS RECOMMENDED FOR ALL MariaDB
+        SERVERS IN PRODUCTION USE!  PLEASE READ EACH STEP CAREFULLY!
+  
+  In order to log into MariaDB to secure it, we'll need the current
+  password for the root user.  If you've just installed MariaDB, and
+  you haven't set the root password yet, the password will be blank,
+  so you should just press enter here.
+  
+  Enter current password for root (enter for none): 
+  Setting the root password ensures that nobody can log into the MariaDB
+  root user without the proper authorisation.
+  
+  You already have a root password set, so you can safely answer 'n'.
+  
+  Change the root password? [Y/n] Y
+  New password:*******
+  Re-enter new password: *******
+  By default, a MariaDB installation has an anonymous user, allowing anyone
+  to log into MariaDB without having to have a user account created for
+  them.  This is intended only for testing, and to make the installation
+  go a bit smoother.  You should remove them before moving into a
+  production environment.
+  
+  Remove anonymous users? [Y/n] Y
+  Normally, root should only be allowed to connect from 'localhost'.  This
+  ensures that someone cannot guess at the root password from the network.
+  
+  Disallow root login remotely? [Y/n] Y
+  By default, MariaDB comes with a database named 'test' that anyone can
+  access.  This is also intended only for testing, and should be removed
+  before moving into a production environment.
+  
+  Remove test database and access to it? [Y/n]Y
+  
+  Reloading the privilege tables will ensure that all changes made so far
+  will take effect immediately.
+  
+  Reload privilege tables now? [Y/n] Y
+  ```
+
+- 设置允许远程登录mysql
+
+  - 修改配置文件
+
+    ```shell
+    sudo vim /etc/mysql/mariadb.conf.d/50-server.cnf +29
+    ```
+
+    将`#` 号去掉
+
+  - 修改登录权限
+
+    ```
+    sudo mysql -u root -p
+    Enter password: 
+    Welcome to the MariaDB monitor.  Commands end with ; or \g.
+    Your MariaDB connection id is 41
+    Server version: 10.0.34-MariaDB-0ubuntu0.16.04.1 Ubuntu 16.04
+    
+    Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+    
+    Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+    
+    MariaDB [(none)]> GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY '自己想设置的mysql的密码' WITH GRANT OPTION;
+    MariaDB [(none)]> DELETE FROM mysql.user where host="localhost";
+    MariaDB [(none)]>FLUSH PRIVILEGES;
+    MariaDB [(none)]>exit
+    MariaDB [(none)]> exit
+    Bye
+    ```
+
+  - 重启mysql服务
+
+    ```shell
+    sudo service mysql restart 
+    ```
+
 ## 补充内容
 
 ### container_of(ptr, type, member)
