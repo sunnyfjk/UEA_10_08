@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Toilet</class>
+ <widget class="QWidget" name="Toilet">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>451</width>
+    <height>359</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,2,5">
+   <item>
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>    Toilet 卫生间</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>150</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>热水器</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>150</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>灯</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>换风扇(0 r/s)</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDial" name="dial">
+       <property name="invertedAppearance">
+        <bool>false</bool>
+       </property>
+       <property name="invertedControls">
+        <bool>false</bool>
+       </property>
+       <property name="wrapping">
+        <bool>false</bool>
+       </property>
+       <property name="notchTarget">
+        <double>5.000000000000000</double>
+       </property>
+       <property name="notchesVisible">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

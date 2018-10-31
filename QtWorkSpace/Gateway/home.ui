@@ -25,19 +25,135 @@
   <property name="windowTitle">
    <string>home</string>
   </property>
-  <widget class="QPushButton" name="pushButton">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>20</y>
-     <width>151</width>
-     <height>81</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>PushButton</string>
-   </property>
-  </widget>
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="9,0">
+   <item>
+    <widget class="QWidget" name="widget" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="Parlour">
+       <property name="minimumSize">
+        <size>
+         <width>170</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>170</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>客厅</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="StudyRoom">
+       <property name="minimumSize">
+        <size>
+         <width>170</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>170</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>书房</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="BedRoom">
+       <property name="minimumSize">
+        <size>
+         <width>170</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>170</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>卧室</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="SubalternRoom">
+       <property name="minimumSize">
+        <size>
+         <width>170</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>170</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>次卧</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="CookRoom">
+       <property name="minimumSize">
+        <size>
+         <width>170</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>170</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>厨房</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="Toilet">
+       <property name="minimumSize">
+        <size>
+         <width>170</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>170</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>卫生间</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

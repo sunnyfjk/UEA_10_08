@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -31,10 +31,32 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        home.cpp
+        home.cpp \
+    bedroom.cpp \
+    cookroom.cpp \
+    parlour.cpp \
+    studyroom.cpp \
+    subalternroom.cpp \
+    toilet.cpp \
+    getewaybase.cpp \
+    stm32f407.cpp
 
 HEADERS += \
-        home.h
+        home.h \
+    bedroom.h \
+    cookroom.h \
+    parlour.h \
+    studyroom.h \
+    subalternroom.h \
+    toilet.h \
+    getewaybase.h \
+    stm32f407.h
 
 FORMS += \
-        home.ui
+        home.ui \
+    bedroom.ui \
+    cookroom.ui \
+    parlour.ui \
+    studyroom.ui \
+    subalternroom.ui \
+    toilet.ui

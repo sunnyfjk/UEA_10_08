@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.6.2, 2018-10-31T12:17:46. -->
+<!-- Written by QtCreator 4.6.2, 2018-10-31T15:06:57. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -8,7 +8,7 @@
  </data>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
-  <value type="int">0</value>
+  <value type="int">1</value>
  </data>
  <data>
   <variable>ProjectExplorer.Project.EditorSettings</variable>
@@ -310,7 +310,7 @@
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.ProFile">Gateway.pro</value>
     <value type="bool" key="Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix">false</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory"></value>
-    <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory.default">/home/fjk/UEA_10_08/QtWorkSpace/build-Gateway-Desktop_Qt_5_11_1_GCC_64bit-Debug</value>
+    <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.UserWorkingDirectory.default">/home/fjk/UEA_10_08/QtWorkSpace/build-Gateway-S5P6818_Qt_5_11_1_GCC_32bit-Debug</value>
     <value type="uint" key="RunConfiguration.QmlDebugServerPort">3768</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
@@ -324,7 +324,7 @@
  <data>
   <variable>ProjectExplorer.Project.Target.1</variable>
   <valuemap type="QVariantMap">
-   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">S5P6818 Qt 5.11.1 GCC 32bit</value>
+   <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">S5P6818 Qt 5.4.1 GCC 32bit</value>
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">S5P6818 Qt 5.4.1 GCC 32bit</value>
    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">{e3cdf4b9-4b31-49cb-9cd8-279c7d46bee8}</value>
    <value type="int" key="ProjectExplorer.Target.ActiveBuildConfiguration">0</value>
@@ -555,7 +555,7 @@
        <value type="QString"></value>
       </valuelist>
       <valuelist type="QVariantList" key="ProjectExplorer.RunConfiguration.LastDeployedTimes">
-       <value type="QDateTime">2018-10-31T12:15:09.058</value>
+       <value type="QDateTime">2018-10-31T15:05:24.501</value>
       </valuelist>
       <value type="bool" key="RemoteLinux.GenericDirectUploadStep.IgnoreMissingFiles">false</value>
       <value type="bool" key="RemoteLinux.GenericDirectUploadStep.Incremental">true</value>
