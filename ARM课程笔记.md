@@ -3686,6 +3686,65 @@ typedef struct __wait_queue_head wait_queue_head_t;
 
 ## 项目内容
 
+### 项目结构
+
+```mermaid
+graph LR
+Could(服务器)
+gaitway(网关)
+devices(设备) 
+
+PM2.5(PM2.5)
+CO(一氧化碳)
+Switch(开关)
+TemAndHwi(温湿度)
+
+Serial(串口)
+zigbee(zigbee网关)
+blue(蓝牙网关)
+Lora(Lora网关)
+
+httpServer(http 服务器)
+mqttServer(mqtt 服务器)
+otherServer(其他服务器)
+
+
+devices-->| 有线或无线通信 |gaitway
+gaitway-->| 互联网 |Could
+devices-->| 无线联网|Could
+subgraph 设备
+PM2.5-->devices
+CO-->devices
+Switch-->devices
+TemAndHwi-->devices
+end
+subgraph 网关
+gaitway---Serial
+gaitway---zigbee
+blue---gaitway
+Lora---gaitway
+end
+subgraph 服务
+Could---httpServer
+Could---mqttServer
+Could---otherServer
+end
+```
+
+```mermaid
+graph TD
+subgraph 网关和设备进行通信方式
+WIFI通信
+zigbee通信
+TTL串口通信
+RS232串口通信
+485串口通信
+Lora通信
+end
+```
+
+
+
 ### 安装配置mysql
 
 - 安装 mysql
