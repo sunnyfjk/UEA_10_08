@@ -41,13 +41,13 @@
       <widget class="QPushButton" name="Parlour">
        <property name="minimumSize">
         <size>
-         <width>170</width>
+         <width>135</width>
          <height>50</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>170</width>
+         <width>135</width>
          <height>16777215</height>
         </size>
        </property>
@@ -60,13 +60,13 @@
       <widget class="QPushButton" name="StudyRoom">
        <property name="minimumSize">
         <size>
-         <width>170</width>
+         <width>135</width>
          <height>50</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>170</width>
+         <width>135</width>
          <height>16777215</height>
         </size>
        </property>
@@ -79,13 +79,13 @@
       <widget class="QPushButton" name="BedRoom">
        <property name="minimumSize">
         <size>
-         <width>170</width>
+         <width>135</width>
          <height>50</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>170</width>
+         <width>135</width>
          <height>16777215</height>
         </size>
        </property>
@@ -98,13 +98,13 @@
       <widget class="QPushButton" name="SubalternRoom">
        <property name="minimumSize">
         <size>
-         <width>170</width>
+         <width>135</width>
          <height>50</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>170</width>
+         <width>135</width>
          <height>16777215</height>
         </size>
        </property>
@@ -117,13 +117,13 @@
       <widget class="QPushButton" name="CookRoom">
        <property name="minimumSize">
         <size>
-         <width>170</width>
+         <width>135</width>
          <height>50</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>170</width>
+         <width>135</width>
          <height>16777215</height>
         </size>
        </property>
@@ -136,18 +136,37 @@
       <widget class="QPushButton" name="Toilet">
        <property name="minimumSize">
         <size>
-         <width>170</width>
+         <width>135</width>
          <height>50</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>170</width>
+         <width>135</width>
          <height>16777215</height>
         </size>
        </property>
        <property name="text">
         <string>卫生间</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="HistoryData">
+       <property name="minimumSize">
+        <size>
+         <width>135</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>135</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>历史记录</string>
        </property>
       </widget>
      </item>

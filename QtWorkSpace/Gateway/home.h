@@ -10,6 +10,7 @@
 #include <subalternroom.h>
 #include <toilet.h>
 #include <stm32f407.h>
+#include <historydata.h>
 namespace Ui {
 class home;
 }
@@ -37,6 +38,8 @@ private slots:
 
     void on_Toilet_clicked();
 
+    void on_HistoryData_clicked();
+
 private:
     Ui::home *ui;
     BedRoom *bedroom;
@@ -45,6 +48,7 @@ private:
     StudyRoom *studyroom;
     SubalternRoom *subalternroom;
     Toilet *toilet;
+    HistoryData *histoydata;
     STM32F407 *stm32;
 };
 

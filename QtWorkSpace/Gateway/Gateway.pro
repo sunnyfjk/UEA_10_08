@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui serialport
+QT       += core gui serialport sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -39,7 +39,8 @@ SOURCES += \
     subalternroom.cpp \
     toilet.cpp \
     getewaybase.cpp \
-    stm32f407.cpp
+    stm32f407.cpp \
+    historydata.cpp
 
 HEADERS += \
         home.h \
@@ -50,7 +51,8 @@ HEADERS += \
     subalternroom.h \
     toilet.h \
     getewaybase.h \
-    stm32f407.h
+    stm32f407.h \
+    historydata.h
 
 FORMS += \
         home.ui \
@@ -59,4 +61,5 @@ FORMS += \
     parlour.ui \
     studyroom.ui \
     subalternroom.ui \
-    toilet.ui
+    toilet.ui \
+    historydata.ui

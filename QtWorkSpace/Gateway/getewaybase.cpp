@@ -20,6 +20,8 @@ void GeteWayBase::switch_ui(GeteWayBase::GeteWayBaseUi_t id)
         break;
     case Toilet_ui:
         break;
+    case HistoryData_ui:
+        break;
     default:
         break;
     };

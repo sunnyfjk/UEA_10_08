@@ -14,6 +14,9 @@ home::home(QWidget *parent) :
     studyroom=new StudyRoom(ui->widget);
     subalternroom=new SubalternRoom(ui->widget);
     toilet=new Toilet(ui->widget);
+    histoydata = new HistoryData(ui->widget);
+
+
     toilet->setSerialPort(stm32);
 
 
@@ -25,6 +28,7 @@ home::home(QWidget *parent) :
     ui->verticalLayout_2->addWidget(studyroom);
     ui->verticalLayout_2->addWidget(subalternroom);
     ui->verticalLayout_2->addWidget(toilet);
+    ui->verticalLayout_2->addWidget(histoydata);
 
     switch_ui(BedRoom_ui);
 }
@@ -42,6 +46,7 @@ void home::switch_ui(GeteWayBase::GeteWayBaseUi_t id)
     studyroom->setVisible(false);
     subalternroom->setVisible(false);
     toilet->setVisible(false);
+    histoydata->setVisible(false);
     switch (id) {
     case GeteWayBase::BedRoom_ui:
         bedroom->setVisible(true);
@@ -60,6 +65,9 @@ void home::switch_ui(GeteWayBase::GeteWayBaseUi_t id)
         break;
     case GeteWayBase::Toilet_ui:
         toilet->setVisible(true);
+        break;
+    case HistoryData_ui:
+        histoydata->setVisible(true);
         break;
     default:
         break;
@@ -94,4 +102,9 @@ void home::on_CookRoom_clicked()
 void home::on_Toilet_clicked()
 {
     switch_ui(Toilet_ui);
+}
+
+void home::on_HistoryData_clicked()
+{
+    switch_ui(HistoryData_ui);
 }

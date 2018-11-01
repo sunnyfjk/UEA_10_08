@@ -16,6 +16,7 @@ public:
         StudyRoom_ui=3,
         SubalternRoom_ui=4,
         Toilet_ui=5,
+        HistoryData_ui=6,
     };
 public:
     explicit GeteWayBase(QWidget *parent = 0);
