@@ -15,13 +15,15 @@ class Toilet : public GeteWayBase
 public:
     explicit Toilet(QWidget *parent = 0);
     ~Toilet();
+public slots:
+    void sendAirQuAlity(uint8_t id,uint16_t value);
 
 private slots:
-    void on_dial_valueChanged(int value);
+    void on_Lamp_clicked(bool checked);
 
-    void on_pushButton_clicked(bool checked);
+    void on_WaterHeater_clicked(bool checked);
 
-    void on_pushButton_2_clicked(bool checked);
+    void on_Fan_valueChanged(int value);
 
 private:
     Ui::Toilet *ui;

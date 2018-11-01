@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>451</width>
-    <height>359</height>
+    <width>550</width>
+    <height>493</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,2,5">
+  <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
@@ -27,7 +27,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="WaterHeater">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -43,7 +43,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_2">
+      <widget class="QPushButton" name="Lamp">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -61,9 +61,54 @@
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,5">
      <item>
       <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>空气质量</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLCDNumber" name="AirQuality">
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>1</number>
+       </property>
+       <property name="midLineWidth">
+        <number>1</number>
+       </property>
+       <property name="smallDecimalPoint">
+        <bool>false</bool>
+       </property>
+       <property name="digitCount">
+        <number>15</number>
+       </property>
+       <property name="mode">
+        <enum>QLCDNumber::Dec</enum>
+       </property>
+       <property name="segmentStyle">
+        <enum>QLCDNumber::Flat</enum>
+       </property>
+       <property name="intValue" stdset="0">
+        <number>21</number>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QLabel" name="FanDisplay">
        <property name="text">
         <string>换风扇(0 r/s)</string>
        </property>
@@ -73,7 +118,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QDial" name="dial">
+      <widget class="QDial" name="Fan">
        <property name="invertedAppearance">
         <bool>false</bool>
        </property>

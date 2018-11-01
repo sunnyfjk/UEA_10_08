@@ -14,18 +14,27 @@ Toilet::~Toilet()
     delete ui;
 }
 
-void Toilet::on_dial_valueChanged(int value)
+void Toilet::sendAirQuAlity(uint8_t id, uint16_t value)
 {
-    qDebug()<<__FUNCTION__<<" value:"<<value;
+    if(id==0){
+        ui->AirQuality->display(value);
+    }
 }
 
-void Toilet::on_pushButton_clicked(bool checked)
+void Toilet::on_Lamp_clicked(bool checked)
 {
-    stm->setSwitchStat(0,checked?1:0);
+    stm->setLedStat(1,checked?1:0);
+
 }
 
-void Toilet::on_pushButton_2_clicked(bool checked)
+void Toilet::on_WaterHeater_clicked(bool checked)
 {
-    stm->setSwitchStat(1,checked?1:0);
+    stm->setWaterHeaterValue(0,checked?1:0);
+
 }
 
+void Toilet::on_Fan_valueChanged(int value)
+{
+    ui->FanDisplay->setText(QString("换风扇(%1 r/s)").arg(value));
+    stm->setMotorValue(0,value);
+}

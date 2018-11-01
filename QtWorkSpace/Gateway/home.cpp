@@ -17,6 +17,7 @@ home::home(QWidget *parent) :
     toilet->setSerialPort(stm32);
 
 
+     connect(stm32,SIGNAL(sendAirQuAlity(uint8_t,uint16_t)),toilet,SLOT(sendAirQuAlity(uint8_t,uint16_t)));
 
     ui->verticalLayout_2->addWidget(bedroom);
     ui->verticalLayout_2->addWidget(cookroom);
