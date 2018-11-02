@@ -27,27 +27,27 @@ public:
     };
     struct DataNodeLed_t{
         struct DateHead_t head;
-        uint8_t id;
+        uint16_t id;
         uint8_t power;
     };
     struct DataNodeWaterHeater_t{
         struct DateHead_t head;
-        uint8_t id;
+        uint16_t id;
         uint8_t power;
     };
     struct DataNodeMotor_t{
         struct DateHead_t head;
-        uint8_t id;
+        uint16_t id;
         uint8_t value;
     };
     struct DataNodePm25_t{
         struct DateHead_t head;
-        uint8_t id;
+        uint16_t id;
         uint16_t value;
     };
     struct DataAirQuAlity_t{
         struct DateHead_t head;
-        uint8_t id;
+        uint16_t id;
         uint16_t value;
     };
     union STM32F407Data_t{
@@ -61,20 +61,20 @@ public:
 #pragma pack(pop)
 
 signals:
-    void sendPm25Value(uint8_t id,uint16_t value);
-    void sendSwitchState(uint8_t id,uint8_t power);
-    void sendMotorValue(uint8_t id,uint16_t value);
-    void sendAirQuAlity(uint8_t id,uint16_t value);
-    void sendWaterHeater(uint8_t id,uint16_t value);
+    void sendPm25Value(uint16_t id,uint16_t value);
+    void sendLedState(uint16_t id,uint8_t power);
+    void sendMotorValue(uint16_t id,uint16_t value);
+    void sendAirQuAlity(uint16_t id,uint16_t value);
+    void sendWaterHeater(uint16_t id,uint16_t value);
 
 public slots:
-    quint16 setLedStat(uint8_t id,uint8_t power);
-    quint16 getLedStat(uint8_t id);
-    quint16 getPm25Value(uint8_t id);
-    quint16 setMotorValue(uint8_t id,uint16_t value);
-    quint16 getMotorValue(uint8_t id);
-    quint16 setWaterHeaterValue(uint8_t id,uint8_t power);
-    quint16 getWaterHeaterValue(uint8_t id);
+    quint16 setLedStat(uint16_t id,uint8_t power);
+    quint16 getLedStat(uint16_t id);
+    quint16 getPm25Value(uint16_t id);
+    quint16 setMotorValue(uint16_t id,uint16_t value);
+    quint16 getMotorValue(uint16_t id);
+    quint16 setWaterHeaterValue(uint16_t id,uint8_t power);
+    quint16 getWaterHeaterValue(uint16_t id);
 
     bool openSerialPort(QString PortName);
     void readyRead();

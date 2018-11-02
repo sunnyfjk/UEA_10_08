@@ -36,3 +36,28 @@ void GeteWayBase::setSerialPort(STM32F407 *port)
 {
     stm=port;
 }
+
+void GeteWayBase::sendPm25Value(uint16_t id, uint16_t value)
+{
+
+}
+
+void GeteWayBase::sendLedState(uint16_t id, uint8_t power)
+{
+
+}
+
+void GeteWayBase::sendMotorValue(uint16_t id, uint16_t value)
+{
+
+}
+
+void GeteWayBase::sendAirQuAlity(uint16_t id, uint16_t value)
+{
+
+}
+
+void GeteWayBase::sendWaterHeater(uint16_t id, uint16_t value)
+{
+
+}

@@ -16,7 +16,7 @@ public:
     explicit Toilet(QWidget *parent = 0);
     ~Toilet();
 public slots:
-    void sendAirQuAlity(uint8_t id,uint16_t value);
+    void sendAirQuAlity(uint16_t id,uint16_t value);
 
 private slots:
     void on_Lamp_clicked(bool checked);
@@ -24,6 +24,10 @@ private slots:
     void on_WaterHeater_clicked(bool checked);
 
     void on_Fan_valueChanged(int value);
+
+    void changeLedState(uint16_t id,uint8_t power);
+
+    void changeWaterHeater(uint16_t id,uint16_t value);
 
 private:
     Ui::Toilet *ui;

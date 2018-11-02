@@ -11,6 +11,7 @@
 #include <toilet.h>
 #include <stm32f407.h>
 #include <historydata.h>
+#include <mqttcommunications.h>
 namespace Ui {
 class home;
 }
@@ -50,6 +51,7 @@ private:
     Toilet *toilet;
     HistoryData *histoydata;
     STM32F407 *stm32;
+    MqttCommunications *mqtt;
 };
 
 #endif // HOME_H

@@ -18,6 +18,11 @@ public:
         Toilet_ui=5,
         HistoryData_ui=6,
     };
+    enum DeviceId_t{
+        AirQuAlity_ID=1373,
+        Lamp_ID=1374,
+        WaterHeater_ID=1375,
+    };
 public:
     explicit GeteWayBase(QWidget *parent = 0);
     virtual void switch_ui( enum GeteWayBaseUi_t id);
@@ -26,7 +31,11 @@ public:
 signals:
 
 public slots:
-
+    virtual void sendPm25Value(uint16_t id,uint16_t value);
+    virtual void sendLedState(uint16_t id,uint8_t power);
+    virtual void sendMotorValue(uint16_t id,uint16_t value);
+    virtual void sendAirQuAlity(uint16_t id,uint16_t value);
+    virtual void sendWaterHeater(uint16_t id,uint16_t value);
 protected:
     STM32F407 *stm;
 

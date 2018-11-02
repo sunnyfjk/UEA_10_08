@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui serialport sql
+QT       += core gui serialport sql mqtt
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -40,7 +40,8 @@ SOURCES += \
     toilet.cpp \
     getewaybase.cpp \
     stm32f407.cpp \
-    historydata.cpp
+    historydata.cpp \
+    mqttcommunications.cpp
 
 HEADERS += \
         home.h \
@@ -52,7 +53,8 @@ HEADERS += \
     toilet.h \
     getewaybase.h \
     stm32f407.h \
-    historydata.h
+    historydata.h \
+    mqttcommunications.h
 
 FORMS += \
         home.ui \

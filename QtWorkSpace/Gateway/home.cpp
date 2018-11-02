@@ -15,12 +15,32 @@ home::home(QWidget *parent) :
     subalternroom=new SubalternRoom(ui->widget);
     toilet=new Toilet(ui->widget);
     histoydata = new HistoryData(ui->widget);
+    mqtt = new MqttCommunications;
+
+
+    /*将设备中的数据存放值数据库*/
+
+    connect(stm32,SIGNAL(sendAirQuAlity(uint16_t,uint16_t)),histoydata,SLOT(sendAirQuAlity(uint16_t,uint16_t)));
+    connect(stm32,SIGNAL(sendLedState(uint16_t,uint8_t)),histoydata,SLOT(sendLedState(uint16_t,uint8_t)));
+    connect(stm32,SIGNAL(sendMotorValue(uint16_t,uint16_t)),histoydata,SLOT(sendMotorValue(uint16_t,uint16_t)));
+    connect(stm32,SIGNAL(sendPm25Value(uint16_t,uint16_t)),histoydata,SLOT(sendPm25Value(uint16_t,uint16_t)));
+    connect(stm32,SIGNAL(sendWaterHeater(uint16_t,uint16_t)),histoydata,SLOT(sendWaterHeater(uint16_t,uint16_t)));
+
+    connect(stm32,SIGNAL(sendAirQuAlity(uint16_t,uint16_t)),mqtt,SLOT(sendAirQuAlity(uint16_t,uint16_t)));
+    connect(stm32,SIGNAL(sendLedState(uint16_t,uint8_t)),mqtt,SLOT(sendLedState(uint16_t,uint8_t)));
+    connect(stm32,SIGNAL(sendMotorValue(uint16_t,uint16_t)),mqtt,SLOT(sendMotorValue(uint16_t,uint16_t)));
+    connect(stm32,SIGNAL(sendPm25Value(uint16_t,uint16_t)),mqtt,SLOT(sendPm25Value(uint16_t,uint16_t)));
+    connect(stm32,SIGNAL(sendWaterHeater(uint16_t,uint16_t)),mqtt,SLOT(sendWaterHeater(uint16_t,uint16_t)));
+
+    connect(mqtt,SIGNAL(changeLedState(uint16_t,uint8_t)),toilet,SLOT(changeLedState(uint16_t,uint8_t)));
+    connect(mqtt,SIGNAL(changeWaterHeater(uint16_t,uint16_t)),toilet,SLOT(changeWaterHeater(uint16_t,uint16_t)));
+
 
 
     toilet->setSerialPort(stm32);
 
 
-     connect(stm32,SIGNAL(sendAirQuAlity(uint8_t,uint16_t)),toilet,SLOT(sendAirQuAlity(uint8_t,uint16_t)));
+    connect(stm32,SIGNAL(sendAirQuAlity(uint16_t,uint16_t)),toilet,SLOT(sendAirQuAlity(uint16_t,uint16_t)));
 
     ui->verticalLayout_2->addWidget(bedroom);
     ui->verticalLayout_2->addWidget(cookroom);
@@ -68,6 +88,7 @@ void home::switch_ui(GeteWayBase::GeteWayBaseUi_t id)
         break;
     case HistoryData_ui:
         histoydata->setVisible(true);
+        histoydata->switch_ui_init();
         break;
     default:
         break;
