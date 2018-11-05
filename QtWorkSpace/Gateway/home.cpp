@@ -6,15 +6,21 @@ home::home(QWidget *parent) :
     ui(new Ui::home)
 {
     ui->setupUi(this);
+
+    QPalette palette;
+    palette.setBrush(QPalette::Background, QBrush(QPixmap(":/resource/back.jpg")));
+    this->setPalette(palette);
+
+
     stm32 = new STM32F407;
     stm32->openSerialPort("/dev/ttySAC1");
-    bedroom=new BedRoom(ui->widget);
-    cookroom=new CookRoom(ui->widget);
-    parlour= new Parlour(ui->widget);
-    studyroom=new StudyRoom(ui->widget);
-    subalternroom=new SubalternRoom(ui->widget);
-    toilet=new Toilet(ui->widget);
-    histoydata = new HistoryData(ui->widget);
+    bedroom=new BedRoom(this);
+    cookroom=new CookRoom(this);
+    parlour= new Parlour(this);
+    studyroom=new StudyRoom(this);
+    subalternroom=new SubalternRoom(this);
+    toilet=new Toilet(this);
+    histoydata = new HistoryData(this);
     mqtt = new MqttCommunications;
 
 

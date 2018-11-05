@@ -7,6 +7,7 @@ HistoryData::HistoryData(QWidget *parent) :
     ui(new Ui::HistoryData)
 {
     ui->setupUi(this);
+
     /*让显示的数据平均分配空间*/
     ui->DisplaySqlData->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->DisplaySqlData->verticalHeader()->setVisible(false);
@@ -31,7 +32,7 @@ HistoryData::HistoryData(QWidget *parent) :
     }
     /*DeviceData*/
     /*SwitchDevice*/
-    display = new QSqlTableModel;
+    display = new QSqlTableModel(this);
     /*为tableview设置数据模型*/
     ui->DisplaySqlData->setModel(display);
     /*清空数据模型*/

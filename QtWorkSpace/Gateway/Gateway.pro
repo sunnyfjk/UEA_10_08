@@ -65,3 +65,6 @@ FORMS += \
     subalternroom.ui \
     toilet.ui \
     historydata.ui
+
+RESOURCES += \
+    resource.qrc

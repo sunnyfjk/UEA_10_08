@@ -40,6 +40,9 @@
        <property name="checkable">
         <bool>true</bool>
        </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -54,6 +57,9 @@
         <string>灯</string>
        </property>
        <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="flat">
         <bool>true</bool>
        </property>
       </widget>
