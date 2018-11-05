@@ -1,18 +1,25 @@
 #include "home.h"
 #include <QApplication>
+#include <QFontDatabase>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    int nIndex = QFontDatabase::addApplicationFont(
+                "/usr/share/fonts/truetype/wqy/wqy-zenhei.ttc");
+    if(nIndex != -1)
+    {
+        QStringList strList(QFontDatabase::applicationFontFamilies(nIndex));
+        if (strList.count() > 0)
+        {
+            QFont fontThis(strList.at(0));
+            fontThis.setPointSize(7);
+            a.setFont(fontThis);
+        }
+    }
+
     home w;
     w.show();
-    /*
-    BedRoom 卧室
-    CookRoom 厨房
-    Parlour 客厅
-    StudyRoom 书房
-    SubalternRoom 次卧
-    Toilet 卫生间
-    */
     return a.exec();
 }

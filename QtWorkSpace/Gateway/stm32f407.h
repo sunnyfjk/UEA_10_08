@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QSerialPort>
+#include <stdint.h>
 
 class STM32F407 : public QObject
 {

@@ -29,7 +29,11 @@ public:
     virtual void switch_ui_init(void);
     virtual void setSerialPort( STM32F407 *port);
 signals:
-
+    void mqttSendPm25Value(uint16_t id,uint16_t value);
+    void mqttSendLedState(uint16_t id,uint8_t power);
+    void mqttSendMotorValue(uint16_t id,uint16_t value);
+    void mqttSendAirQuAlity(uint16_t id,uint16_t value);
+    void mqttSendWaterHeater(uint16_t id,uint16_t value);
 public slots:
     virtual void sendPm25Value(uint16_t id,uint16_t value);
     virtual void sendLedState(uint16_t id,uint8_t power);

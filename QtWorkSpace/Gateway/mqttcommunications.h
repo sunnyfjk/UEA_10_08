@@ -3,12 +3,13 @@
 
 #include <QObject>
 #include <QMqttClient>
+#include <stdint.h>
 
 class MqttCommunications : public QObject
 {
     Q_OBJECT
 public:
-    explicit MqttCommunications(QObject *parent = nullptr);
+    explicit MqttCommunications(QObject *parent = NULL);
 
 signals:
     void changeLedState(uint16_t id,uint8_t power);

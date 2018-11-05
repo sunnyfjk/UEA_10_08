@@ -7,7 +7,7 @@ home::home(QWidget *parent) :
 {
     ui->setupUi(this);
     stm32 = new STM32F407;
-    stm32->openSerialPort("/dev/ttyUSB0");
+    stm32->openSerialPort("/dev/ttySAC1");
     bedroom=new BedRoom(ui->widget);
     cookroom=new CookRoom(ui->widget);
     parlour= new Parlour(ui->widget);
@@ -26,11 +26,11 @@ home::home(QWidget *parent) :
     connect(stm32,SIGNAL(sendPm25Value(uint16_t,uint16_t)),histoydata,SLOT(sendPm25Value(uint16_t,uint16_t)));
     connect(stm32,SIGNAL(sendWaterHeater(uint16_t,uint16_t)),histoydata,SLOT(sendWaterHeater(uint16_t,uint16_t)));
 
-    connect(stm32,SIGNAL(sendAirQuAlity(uint16_t,uint16_t)),mqtt,SLOT(sendAirQuAlity(uint16_t,uint16_t)));
-    connect(stm32,SIGNAL(sendLedState(uint16_t,uint8_t)),mqtt,SLOT(sendLedState(uint16_t,uint8_t)));
-    connect(stm32,SIGNAL(sendMotorValue(uint16_t,uint16_t)),mqtt,SLOT(sendMotorValue(uint16_t,uint16_t)));
-    connect(stm32,SIGNAL(sendPm25Value(uint16_t,uint16_t)),mqtt,SLOT(sendPm25Value(uint16_t,uint16_t)));
-    connect(stm32,SIGNAL(sendWaterHeater(uint16_t,uint16_t)),mqtt,SLOT(sendWaterHeater(uint16_t,uint16_t)));
+    connect(toilet,SIGNAL(mqttSendAirQuAlity(uint16_t,uint16_t)),mqtt,SLOT(sendAirQuAlity(uint16_t,uint16_t)));
+    connect(toilet,SIGNAL(mqttSendLedState(uint16_t,uint8_t)),mqtt,SLOT(sendLedState(uint16_t,uint8_t)));
+    connect(toilet,SIGNAL(mqttSendMotorValue(uint16_t,uint16_t)),mqtt,SLOT(sendMotorValue(uint16_t,uint16_t)));
+    connect(toilet,SIGNAL(mqttSendPm25Value(uint16_t,uint16_t)),mqtt,SLOT(sendPm25Value(uint16_t,uint16_t)));
+    connect(toilet,SIGNAL(mqttSendWaterHeater(uint16_t,uint16_t)),mqtt,SLOT(sendWaterHeater(uint16_t,uint16_t)));
 
     connect(mqtt,SIGNAL(changeLedState(uint16_t,uint8_t)),toilet,SLOT(changeLedState(uint16_t,uint8_t)));
     connect(mqtt,SIGNAL(changeWaterHeater(uint16_t,uint16_t)),toilet,SLOT(changeWaterHeater(uint16_t,uint16_t)));

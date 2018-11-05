@@ -14,12 +14,18 @@ HistoryData::HistoryData(QWidget *parent) :
     ui->DisplaySqlData->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     mysql = new QSqlDatabase();
+#ifdef __MYSQL_DRIVER__
     *mysql=QSqlDatabase::addDatabase("QMYSQL");
     mysql->setHostName("127.0.0.1");
     mysql->setPort(3306);
     mysql->setDatabaseName("mqtt");
     mysql->setUserName("root");
     mysql->setPassword("fanjingkai");
+
+#else
+     *mysql=QSqlDatabase::addDatabase("QSQLITE");
+     mysql->setDatabaseName("/root/.getway");
+#endif
     if(!(mysql->open())){
         qDebug()<<"open mysql err";
     }
