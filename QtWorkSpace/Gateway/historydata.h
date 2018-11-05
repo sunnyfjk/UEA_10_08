@@ -35,6 +35,7 @@ private slots:
     void on_DataDevice_clicked();
     void on_SwitchDevice_clicked();
     void timeout();
+    void createDataBases();
 private:
     Ui::HistoryData *ui;
     QSqlDatabase *mysql;

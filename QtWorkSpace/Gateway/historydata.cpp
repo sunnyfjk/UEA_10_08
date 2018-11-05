@@ -1,6 +1,7 @@
 #include "historydata.h"
 #include "ui_historydata.h"
 #include <QDebug>
+#include <QFile>
 
 HistoryData::HistoryData(QWidget *parent) :
     GeteWayBase(parent),
@@ -24,11 +25,15 @@ HistoryData::HistoryData(QWidget *parent) :
     mysql->setPassword("fanjingkai");
 
 #else
-     *mysql=QSqlDatabase::addDatabase("QSQLITE");
-     mysql->setDatabaseName("/root/.getway");
+    bool f=QFile("/root/.getway").exists();
+    *mysql=QSqlDatabase::addDatabase("QSQLITE");
+    mysql->setDatabaseName("/root/.getway");
 #endif
     if(!(mysql->open())){
         qDebug()<<"open mysql err";
+    }
+    if(!f){
+        createDataBases();
     }
     /*DeviceData*/
     /*SwitchDevice*/
@@ -193,4 +198,24 @@ void HistoryData::on_SwitchDevice_clicked()
 void HistoryData::timeout()
 {
     switch_ui_init();
+}
+
+void HistoryData::createDataBases()
+{
+#define CREATE_DeviceData_TABLE "CREATE TABLE DeviceData ("\
+    "    id    INTEGER      PRIMARY KEY AUTOINCREMENT,"\
+    "    name  VARCHAR (45) NOT NULL,"\
+    "    value DOUBLE"\
+    ");"
+
+    QSqlQuery query;
+    query.exec(CREATE_DeviceData_TABLE);
+    query.clear();
+
+#define CRETE_SwitchDevice_TABLE "CREATE TABLE SwitchDevice ("\
+    "    id   INTEGER      PRIMARY KEY AUTOINCREMENT,"\
+    "    name VARCHAR (45) UNIQUE,"\
+    "    stat DOUBLE       NOT NULL"\
+    ");"
+    query.exec(CRETE_SwitchDevice_TABLE);
 }
